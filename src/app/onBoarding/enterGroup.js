@@ -29,7 +29,7 @@ export default class EnterGroup extends Component {
                     backgroundColor={Colors.light}
                     icon={{name: 'group-add', size: 24}}
                     buttonStyle={styles.openGroupButton}
-                    onPress={() => Actions.groupName()}
+                    onPress={() => Actions.editNickname()}
                     title='Open Group'/>
             </View>
         );

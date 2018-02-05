@@ -1,8 +1,8 @@
 import {combineReducers} from "redux";
 import GroupReducer from './groupReducer';
-import GroupCreationReducer from './groupCreationReducer';
+import OnBoardingReducer from './onBoardingReducer';
 
 export default combineReducers({
     group: GroupReducer,
-    groupCreation: GroupCreationReducer
+    onBoarding: OnBoardingReducer
 });

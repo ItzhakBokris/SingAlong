@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
+import React, {Component} from "react";
+import {StatusBar, StyleSheet, View} from "react-native";
 import {Scene, Router} from 'react-native-router-flux';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
@@ -7,7 +7,8 @@ import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
 import {Styles} from './styles/appTheme';
 import EnterGroup from './src/app/onBoarding/enterGroup';
-import GroupName from './src/app/onBoarding/openGroup/groupName'
+import EditGroupName from './src/app/onBoarding/editGroupName'
+import EditNickname from './src/app/onBoarding/editNickname'
 import reducers from './src/reducers';
 
 export default class App extends Component {
@@ -40,9 +41,19 @@ export default class App extends Component {
 
                                 <Scene
                                     backTitle='Back'
-                                    key='groupName'
+                                    rightTitle='Next'
+                                    onRight={() => null}
+                                    key='editNickname'
                                     title='New Group'
-                                    component={GroupName}/>
+                                    component={EditNickname}/>
+
+                                <Scene
+                                    backTitle='Back'
+                                    rightTitle='Open'
+                                    onRight={() => null}
+                                    key='editGroupName'
+                                    title='New Group'
+                                    component={EditGroupName}/>
                             </Scene>
                         </Scene>
                     </Router>

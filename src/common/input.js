@@ -4,7 +4,7 @@ import {Icon} from "react-native-elements";
 import {Platform} from "react-native";
 import {Colors} from "../../styles/appTheme";
 
-const Input = ({iconProps, value, onChangeText}) => (
+const Input = ({iconProps, value, onChangeText, placeholder}) => (
     <View style={styles.container}>
         <View style={styles.nameInputContainer}>
             <Icon
@@ -18,7 +18,7 @@ const Input = ({iconProps, value, onChangeText}) => (
                 underlineColorAndroid='transparent'
                 style={styles.nameInput}
                 placeholderTextColor={Colors.lightTextColor}
-                placeholder="Enter group name"
+                placeholder={placeholder}
                 value={value}
                 onChangeText={onChangeText}/>
         </View>

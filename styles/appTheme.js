@@ -17,6 +17,9 @@ export const Styles = {
         titleStyle: {
             color: 'white'
         },
+        rightButtonTextStyle: {
+            color: 'white'
+        },
         backButtonTintColor: 'white',
         backButtonTextStyle: 'white'
     } : null,

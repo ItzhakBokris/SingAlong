@@ -1,2 +1,2 @@
 export * from './groupActions';
-export * from './groupCreationActions';
+export * from './onBoardingActions';
