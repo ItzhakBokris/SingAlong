@@ -1,13 +1,9 @@
-import {GROUP_FETCH_SUCCESS} from '../actions/types';
+import {GROUP_FETCH} from '../actions/types';
 
-const INITIAL_STATE = {
-    group: null
-};
-
-export default (state = INITIAL_STATE, action) => {
+export default (state = {}, action) => {
     switch (action.type) {
-        case GROUP_FETCH_SUCCESS:
-            return {...state, group: action.payload};
+        case GROUP_FETCH:
+            return action.payload || {};
         default:
             return state;
     }

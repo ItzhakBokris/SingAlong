@@ -5,11 +5,12 @@ import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
-import {Styles} from './styles/appTheme';
-import EnterGroup from './src/app/onBoarding/enterGroup';
-import EditGroupName from './src/app/onBoarding/editGroupName'
-import EditNickname from './src/app/onBoarding/editNickname'
-import reducers from './src/reducers';
+import {Styles} from '../../styles/appTheme';
+import EnterGroup from './onBoarding/enterGroup';
+import EditGroupName from './onBoarding/editGroupName'
+import EditNickname from './onBoarding/editNickname'
+import reducers from '../reducers/index';
+import SingList from "../core/sings/searchSing";
 
 export default class App extends Component {
 
@@ -33,11 +34,17 @@ export default class App extends Component {
                     <Router {...Styles.navigationBar}>
                         <Scene hideNavBar key='root'>
                             <Scene key='onBoarding'>
+
                                 <Scene
                                     initial
-                                    hideNavBar
                                     key='enterGroup'
-                                    component={EnterGroup}/>
+                                    component={SingList}/>
+
+                                {/*<Scene*/}
+                                    {/*initial*/}
+                                    {/*hideNavBar*/}
+                                    {/*key='enterGroup'*/}
+                                    {/*component={EnterGroup}/>*/}
 
                                 <Scene
                                     backTitle='Back'
