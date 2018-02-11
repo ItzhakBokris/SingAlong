@@ -1,28 +1,33 @@
 import React, {Component} from 'react';
 import {ListView, StyleSheet} from 'react-native'
+import PropTypes from 'prop-types';
 import {Avatar, List, ListItem} from 'react-native-elements'
 import {Colors} from "../../styles/appTheme";
 
-class SingList extends Component {
+export default class SongList extends Component {
+
+    static propTypes = {
+        songs: PropTypes.array.isRequired,
+    };
 
     static defaultProps = {
         onEndReached: () => null,
-        onSingPress: () => null,
-        selectedSings: [],
+        onSongPress: () => null,
+        selectedSongs: [],
         containerStyle: {}
     };
 
     componentWillMount() {
-        this.updateSingsDataSource(this.props);
+        this.updateSongsDataSource(this.props);
     }
 
     componentWillReceiveProps(nextProps) {
-        this.updateSingsDataSource(nextProps);
+        this.updateSongsDataSource(nextProps);
     }
 
-    updateSingsDataSource(props) {
+    updateSongsDataSource(props) {
         const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.singsDataSource = dataSource.cloneWithRows(props.sings);
+        this.songsDataSource = dataSource.cloneWithRows(props.songs);
     }
 
     render() {
@@ -31,27 +36,27 @@ class SingList extends Component {
                 <ListView
                     enableEmptySections
                     keyboardShouldPersistTaps='handled'
-                    dataSource={this.singsDataSource}
-                    renderRow={this.renderSingRow.bind(this)}
+                    dataSource={this.songsDataSource}
+                    renderRow={this.renderSongRow.bind(this)}
                     onEndReached={this.props.onEndReached.bind(this)}/>
             </List>
         );
     }
 
-    renderSingRow(sing) {
+    renderSongRow(song) {
         return (
             <ListItem
-                key={sing.name}
-                title={sing.name}
-                subtitle={sing.artist}
-                rightIcon={this.renderSingRightIcon(sing)}
-                avatar={<Avatar medium source={{uri: sing.image}}/>}
-                onPress={() => this.props.onSingPress(sing)}/>
+                key={song.name}
+                title={song.name}
+                subtitle={song.artist}
+                rightIcon={this.renderSongRightIcon(song)}
+                avatar={<Avatar medium source={{uri: song.image}}/>}
+                onPress={() => this.props.onSongPress(song)}/>
         );
     }
 
-    renderSingRightIcon(sing) {
-        if (this.props.selectedSings.some(selectedSing => selectedSing.name === sing.name)) {
+    renderSongRightIcon(song) {
+        if (this.props.selectedSongs.some(selectedSong => selectedSong.name === song.name)) {
             return {name: 'check-circle', color: Colors.success};
         }
         return {color: 'transparent'};
@@ -65,5 +70,3 @@ const styles = StyleSheet.create({
         flex: 1
     }
 });
-
-export default SingList;

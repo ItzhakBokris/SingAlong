@@ -7,7 +7,7 @@ import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
 import {Styles} from '../styles/appTheme';
 import EnterGroup from './scenes/onBoarding/enterGroup';
-import SelectSings from './scenes/onBoarding/selectSings'
+import SelectSongs from './scenes/onBoarding/selectSongs'
 import EditGroupName from './scenes/onBoarding/editGroupName'
 import EditNickname from './scenes/onBoarding/editNickname'
 import reducers from '../reducers/index';
@@ -53,9 +53,9 @@ export default class App extends Component {
                                     backTitle='Back'
                                     rightTitle='Next'
                                     onRight={() => null}
-                                    key='selectSings'
+                                    key='selectSongs'
                                     title='New Group'
-                                    component={SelectSings}/>
+                                    component={SelectSongs}/>
 
                                 <Scene
                                     backTitle='Back'
@@ -74,14 +74,17 @@ export default class App extends Component {
                                     component={EditNickname}/>
                             </Scene>
 
-                            <Scene key='main'>
+                            <Scene key='main' initial={true}>
                                 <Scene
                                     initial
+                                    rightTitle=''
+                                    leftTitle='a'
+                                    onRight={() => null}
+                                    onLeft={() => null}
                                     key='groupPage'
                                     title='Sing Along'
-                                    rightTitle='Menu'
-                                    onRight={() => null}
-                                    component={GroupPage}/>
+                                    component={GroupPage}
+                                    {...Styles.translucentNavigationBar}/>
                             </Scene>
                         </Scene>
                     </Router>

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {groupNameChanged} from '../../../actions';
-import EditGroupProperty from '../../../core/groups/editGroupProperty';
+import EditGroupProperty from '../../../core/onBoarding/editGroupProperty';
 
 class EditGroupName extends Component {
 
@@ -10,7 +10,7 @@ class EditGroupName extends Component {
         return (
             <EditGroupProperty
                 value={this.props.groupName}
-                selectedSings={this.props.selectedSings}
+                selectedSongs={this.props.selectedSongs}
                 placeholder='Enter group name'
                 errorMessage='Please provide a group name'
                 nextButton='Next'

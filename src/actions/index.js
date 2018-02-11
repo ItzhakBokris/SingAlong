@@ -1,2 +1,2 @@
-export * from './singActions';
+export * from './songActions';
 export * from './onBoardingActions';

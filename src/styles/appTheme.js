@@ -1,11 +1,12 @@
 import {Platform} from "react-native";
+import {StatusBar} from 'react-native';
 
 export const Colors = {
-    darker: '#271345',
-    dark: '#3d1d6e',
-    primary: '#6a33be',
-    light: '#a17bdc',
-    lighter: '#bea4e6',
+    darker: '#0c2640',
+    dark: '#174c81',
+    primary: '#2372c2',
+    light: '#5298e0',
+    lighter: '#93bfeb',
 
     success: '#5cb85c',
     info: '#5bc0de',
@@ -31,9 +32,31 @@ export const Styles = {
         backButtonTextStyle: 'white'
     } : null,
 
+    translucentNavigationBar: {
+        navigationBarStyle: {
+            backgroundColor:'transparent',
+            marginBottom:'-100%',
+            borderBottomWidth: 0,
+            marginTop: StatusBar.currentHeight,
+            elevation: 0,
+        },
+        titleStyle: {
+            color: 'white',
+            justifyContent: 'space-between',
+            textAlign: 'center',
+            alignSelf: 'center'
+        },
+    },
+
     statusBar: Platform.OS === 'android' ? {
         backgroundColor: Colors.dark
     } : null,
+
+    translucentStatusBar: {
+        translucent: true,
+        backgroundColor: 'transparent',
+        barStyle: 'light-content'
+    },
 
     searchBar: Platform.OS === 'android' ? {
         lightTheme: true,
@@ -71,5 +94,7 @@ export const Styles = {
             backgroundColor: '#eee',
             borderRadius: 7
         }
-    }
+    },
+
+    blurRadius: Platform.OS === 'ios' ? 5 : 1
 };

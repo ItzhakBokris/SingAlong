@@ -1,22 +1,26 @@
 import React, {Component} from 'react';
 import {View, StyleSheet, Text} from 'react-native';
+import PropTypes from 'prop-types';
 import {Actions} from 'react-native-router-flux';
 import Toast from 'react-native-root-toast';
 import {Colors} from '../../styles/appTheme';
 import {Input} from '../../common';
-import SingList from '../sings/singList';
+import SongList from '../songs/songList';
 
 export default class EditGroupProperty extends Component {
 
+    static propTypes = {
+        placeholder: PropTypes.string.isRequired,
+        onValueChange: PropTypes.func.isRequired
+    };
+
     static defaultProps = {
         value: '',
-        selectedSings: [],
-        placeholder: 'Please type...',
         errorMessage: 'Please provide a value',
         nextButton: 'Next',
+        selectedSongs: [],
         groupName: '',
         isLoading: false,
-        onValueChange: () => null,
         onNextPress: () => null,
     };
 
@@ -39,22 +43,22 @@ export default class EditGroupProperty extends Component {
                     onChangeText={this.props.onValueChange.bind(this)}/>
 
                 {/*TODO: render group name*/}
-                {this.renderSelectedSings()}
+                {this.renderSelectedSongs()}
             </View>
         );
     }
 
-    renderSelectedSings() {
-        if (this.props.selectedSings.length > 0) {
+    renderSelectedSongs() {
+        if (this.props.selectedSongs.length > 0) {
             return (
                 <View style={styles.container}>
-                    <Text style={styles.singsHeader}>
-                        {this.props.selectedSings.length} sings
+                    <Text style={styles.songsHeader}>
+                        {this.props.selectedSongs.length} songs
                     </Text>
 
-                    <SingList
-                        containerStyle={styles.singListContainer}
-                        sings={this.props.selectedSings}/>
+                    <SongList
+                        containerStyle={styles.songListContainer}
+                        songs={this.props.selectedSongs}/>
                 </View>
             );
         }
@@ -87,14 +91,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    singListContainer: {
+    songListContainer: {
         shadowColor: 'black',
         shadowOffset: {width: 0, height: -2},
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 10
     },
-    singsHeader: {
+    songsHeader: {
         padding: 10,
         fontWeight: 'bold',
         color: Colors.subtitleTextColor

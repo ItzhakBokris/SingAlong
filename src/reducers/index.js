@@ -1,10 +1,10 @@
 import {combineReducers} from "redux";
 import GroupReducer from './groupReducer';
 import OnBoardingReducer from './onBoardingReducer';
-import SingsReducer from './singsReducer';
+import SongsReducer from './songsReducer';
 
 export default combineReducers({
     group: GroupReducer,
     onBoarding: OnBoardingReducer,
-    sings: SingsReducer
+    songs: SongsReducer
 });

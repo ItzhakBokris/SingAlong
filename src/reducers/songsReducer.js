@@ -1,8 +1,8 @@
-import {SINGS_FETCH} from '../actions/types';
+import {SONGS_FETCH} from '../actions/types';
 
 export default (state = [], action) => {
     switch (action.type) {
-        case SINGS_FETCH:
+        case SONGS_FETCH:
             return action.payload || [];
         default:
             return state;

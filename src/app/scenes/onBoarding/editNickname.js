@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {connect} from "react-redux";
 import {Actions} from 'react-native-router-flux';
 import {clearData, groupCreate, nicknameChanged} from "../../../actions";
-import EditGroupProperty from "../../../core/groups/editGroupProperty";
+import EditGroupProperty from "../../../core/onBoarding/editGroupProperty";
 
 class EditNickname extends Component {
 
@@ -22,7 +22,7 @@ class EditNickname extends Component {
         return (
             <EditGroupProperty
                 value={this.props.nickname}
-                selectedSings={this.props.selectedSings}
+                selectedSongs={this.props.selectedSongs}
                 placeholder='Enter your nickname'
                 errorMessage='Please provide your nickname'
                 nextButton='Open'
@@ -34,8 +34,8 @@ class EditNickname extends Component {
     }
 
     onOpenPress() {
-        const {groupName, nickname, selectedSings, groupCreate} = this.props;
-        groupCreate(groupName, nickname, selectedSings);
+        const {groupName, nickname, selectedSongs, groupCreate} = this.props;
+        groupCreate(groupName, nickname, selectedSongs);
         this.setState({isLoading: true});
     }
 }

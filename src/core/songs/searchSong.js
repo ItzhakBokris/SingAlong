@@ -1,53 +1,57 @@
 import React, {Component} from 'react';
 import {ActivityIndicator, LayoutAnimation, ScrollView, StyleSheet, Text, View} from 'react-native'
+import PropTypes from 'prop-types';
 import {connect} from "react-redux";
 import {SearchBar, Badge} from 'react-native-elements'
-import SingList from "./singList";
+import SongList from "./songList";
 import {Styles} from "../../styles/appTheme";
-import {fetchSings} from "../../actions";
+import {fetchSongs} from "../../actions";
 
 const PAGE_SIZE = 25;
 
-class SearchSing extends Component {
+class SearchSong extends Component {
 
-    state = {
-        loading: true,
-        singsCount: PAGE_SIZE,
-        searchText: null
+    static propTypes = {
+        onSongPress: PropTypes.func.isRequired
     };
 
     static defaultProps = {
-        onSingPress: () => null,
-        selectedSings: []
+        selectedSongs: []
+    };
+
+    state = {
+        loading: true,
+        songsCount: PAGE_SIZE,
+        searchText: null
     };
 
     componentWillMount() {
-        this.props.fetchSings(this.state.singsCount);
+        this.props.fetchSongs(this.state.songsCount);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        const {selectedSings, sings, fetchSings} = this.props;
-        const {searchText, singsCount} = this.state;
+        const {selectedSongs, songs, fetchSongs} = this.props;
+        const {searchText, songsCount} = this.state;
 
-        if (nextProps.sings !== sings) {
+        if (nextProps.songs !== songs) {
             this.setState({loading: false});
         }
-        if (selectedSings.length !== nextProps.selectedSings.length &&
-            (selectedSings.length === 0 || nextProps.selectedSings.length === 0)) {
+        if (selectedSongs.length !== nextProps.selectedSongs.length &&
+            (selectedSongs.length === 0 || nextProps.selectedSongs.length === 0)) {
             LayoutAnimation.spring();
         }
-        if (nextState.searchText !== searchText || nextState.singsCount !== singsCount) {
-            fetchSings(nextState.singsCount, nextState.searchText);
+        if (nextState.searchText !== searchText || nextState.songsCount !== songsCount) {
+            fetchSongs(nextState.songsCount, nextState.searchText);
         }
     }
 
     onQueryTextChange(searchText) {
-        this.setState({singsCount: PAGE_SIZE, searchText});
+        this.setState({songsCount: PAGE_SIZE, searchText});
     }
 
     onEndReached() {
-        if (this.props.sings.length === this.state.singsCount) {
-            this.setState({singsCount: this.state.singsCount + PAGE_SIZE});
+        if (this.props.songs.length === this.state.songsCount) {
+            this.setState({songsCount: this.state.songsCount + PAGE_SIZE});
         }
     }
 
@@ -60,14 +64,14 @@ class SearchSing extends Component {
                     onClearText={this.onQueryTextChange.bind(this)}
                     placeholder='Search...'/>
 
-                {this.renderSelectedSingsCarousel()}
+                {this.renderSelectedSongsCarousel()}
                 {this.renderList()}
             </View>
         );
     }
 
-    renderSelectedSingsCarousel() {
-        if (this.props.selectedSings.length > 0) {
+    renderSelectedSongsCarousel() {
+        if (this.props.selectedSongs.length > 0) {
             return (
                 <View>
                     <ScrollView
@@ -75,23 +79,23 @@ class SearchSing extends Component {
                         keyboardShouldPersistTaps='handled'
                         ref={ref => this.scrollView = ref}
                         onContentSizeChange={() => this.scrollView.scrollToEnd()}
-                        contentContainerStyle={styles.selectedSingsCarousel}>
+                        contentContainerStyle={styles.selectedSongsCarousel}>
 
-                        {this.props.selectedSings.map(sing => this.renderSelectedSing(sing))}
+                        {this.props.selectedSongs.map(song => this.renderSelectedSong(song))}
                     </ScrollView>
                 </View>
             );
         }
     }
 
-    renderSelectedSing(sing) {
+    renderSelectedSong(song) {
         return (
             <Badge
-                key={sing.name}
-                containerStyle={styles.selectedSingBadge}
-                onPress={() => this.props.onSingPress(sing)}>
+                key={song.name}
+                containerStyle={styles.selectedSongBadge}
+                onPress={() => this.props.onSongPress(song)}>
 
-                <Text numberOfLines={1} style={styles.selectedSingText}>{sing.name}</Text>
+                <Text numberOfLines={1} style={styles.selectedSongText}>{song.name}</Text>
             </Badge>
         );
     }
@@ -103,10 +107,10 @@ class SearchSing extends Component {
             );
         }
         return (
-            <SingList
-                sings={this.props.sings}
-                selectedSings={this.props.selectedSings}
-                onSingPress={this.props.onSingPress.bind(this)}
+            <SongList
+                songs={this.props.songs}
+                selectedSongs={this.props.selectedSongs}
+                onSongPress={this.props.onSongPress.bind(this)}
                 onEndReached={this.onEndReached.bind(this)}/>
         );
     }
@@ -119,22 +123,22 @@ const styles = StyleSheet.create({
     loader: {
         marginTop: 20
     },
-    selectedSingsCarousel: {
+    selectedSongsCarousel: {
         padding: 10
     },
-    selectedSingBadge: {
+    selectedSongBadge: {
         marginRight: 5,
         backgroundColor: 'lightgrey'
     },
-    selectedSingText: {
+    selectedSongText: {
         paddingVertical: 5,
         maxWidth: 150,
         color: 'white'
     }
 });
 
-const mapStateToProps = (state) => ({sings: state.sings});
+const mapStateToProps = (state) => ({songs: state.songs});
 
-export default connect(mapStateToProps, {fetchSings})(SearchSing);
+export default connect(mapStateToProps, {fetchSongs})(SearchSong);
 
 

@@ -30,7 +30,7 @@ export default class EnterGroup extends Component {
                     text='Open Group'
                     icon={<Icon name='group-add' color='white' size={24}/>}
                     buttonStyle={styles.openGroupButton}
-                    onPress={() => Actions.selectSings()}/>
+                    onPress={() => Actions.selectSongs()}/>
             </View>
         );
     }

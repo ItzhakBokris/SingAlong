@@ -1,9 +1,9 @@
-import {NICKNAME_CHANGED, GROUP_NAME_CHANGED, CLEAR_DATA, SING_SELECTED} from '../actions/types';
+import {NICKNAME_CHANGED, GROUP_NAME_CHANGED, CLEAR_DATA, SONG_SELECTED} from '../actions/types';
 
 const INITIAL_STATE = {
     groupName: '',
     nickname: '',
-    selectedSings: []
+    selectedSongs: []
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -12,12 +12,12 @@ export default (state = INITIAL_STATE, action) => {
             return {...state, groupName: action.payload};
         case NICKNAME_CHANGED:
             return {...state, nickname: action.payload};
-        case SING_SELECTED:
-            const selectedSings = state.selectedSings.filter(sing => sing.name !== action.payload.name);
-            if (selectedSings.length === state.selectedSings.length) {
-                selectedSings.push(action.payload);
+        case SONG_SELECTED:
+            const selectedSongs = state.selectedSongs.filter(song => song.name !== action.payload.name);
+            if (selectedSongs.length === state.selectedSongs.length) {
+                selectedSongs.push(action.payload);
             }
-            return {...state, selectedSings};
+            return {...state, selectedSongs};
         case CLEAR_DATA:
             return INITIAL_STATE;
         default:
