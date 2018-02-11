@@ -2,7 +2,7 @@ import React from "react";
 import {StyleSheet, TextInput, View} from "react-native";
 import {Icon} from "react-native-elements";
 import {Platform} from "react-native";
-import {Colors} from "../../styles/appTheme";
+import {Colors} from "../styles/appTheme";
 
 const Input = ({iconProps, value, onChangeText, placeholder}) => (
     <View style={styles.container}>
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 2,
-        elevation: 1,
+        elevation: 2
     },
     nameInput: {
         flex: 1,

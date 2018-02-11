@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
 import {TextInput, StyleSheet, View, Text} from 'react-native';
-import {Actions} from "react-native-router-flux";
-import {Button, Icon} from "react-native-elements";
+import {Actions} from 'react-native-router-flux';
+import {Button, Icon} from 'react-native-elements';
 import {Colors} from '../../../styles/appTheme';
 
 export default class EnterGroup extends Component {
+
     render() {
         return (
             <View style={styles.container}>
@@ -25,12 +26,11 @@ export default class EnterGroup extends Component {
                 </View>
 
                 <Button
-                    transparent
-                    backgroundColor={Colors.light}
-                    icon={{name: 'group-add', size: 24}}
+                    clear
+                    text='Open Group'
+                    icon={<Icon name='group-add' color='white' size={24}/>}
                     buttonStyle={styles.openGroupButton}
-                    onPress={() => Actions.editNickname()}
-                    title='Open Group'/>
+                    onPress={() => Actions.selectSings()}/>
             </View>
         );
     }

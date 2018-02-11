@@ -1,18 +1,27 @@
 import React, {Component} from "react";
-import {StatusBar, StyleSheet, View} from "react-native";
+import {StatusBar, StyleSheet, View, UIManager, Platform} from "react-native";
 import {Scene, Router} from 'react-native-router-flux';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
-import {Styles} from '../../styles/appTheme';
-import EnterGroup from './onBoarding/enterGroup';
-import EditGroupName from './onBoarding/editGroupName'
-import EditNickname from './onBoarding/editNickname'
+import {Styles} from '../styles/appTheme';
+import EnterGroup from './scenes/onBoarding/enterGroup';
+import SelectSings from './scenes/onBoarding/selectSings'
+import EditGroupName from './scenes/onBoarding/editGroupName'
+import EditNickname from './scenes/onBoarding/editNickname'
 import reducers from '../reducers/index';
-import SingList from "../core/sings/searchSing";
+import GroupPage from "./scenes/main/groupPage";
 
 export default class App extends Component {
+
+    constructor() {
+        super();
+        const {setLayoutAnimationEnabledExperimental} = UIManager;
+        if (Platform.OS === 'android' && setLayoutAnimationEnabledExperimental) {
+            setLayoutAnimationEnabledExperimental(true);
+        }
+    }
 
     componentWillMount() {
         firebase.initializeApp({
@@ -34,33 +43,45 @@ export default class App extends Component {
                     <Router {...Styles.navigationBar}>
                         <Scene hideNavBar key='root'>
                             <Scene key='onBoarding'>
-
                                 <Scene
                                     initial
+                                    hideNavBar
                                     key='enterGroup'
-                                    component={SingList}/>
-
-                                {/*<Scene*/}
-                                    {/*initial*/}
-                                    {/*hideNavBar*/}
-                                    {/*key='enterGroup'*/}
-                                    {/*component={EnterGroup}/>*/}
+                                    component={EnterGroup}/>
 
                                 <Scene
                                     backTitle='Back'
                                     rightTitle='Next'
                                     onRight={() => null}
-                                    key='editNickname'
+                                    key='selectSings'
                                     title='New Group'
-                                    component={EditNickname}/>
+                                    component={SelectSings}/>
+
+                                <Scene
+                                    backTitle='Back'
+                                    rightTitle='Next'
+                                    onRight={() => null}
+                                    key='editGroupName'
+                                    title='New Group'
+                                    component={EditGroupName}/>
 
                                 <Scene
                                     backTitle='Back'
                                     rightTitle='Open'
                                     onRight={() => null}
-                                    key='editGroupName'
+                                    key='editNickname'
                                     title='New Group'
-                                    component={EditGroupName}/>
+                                    component={EditNickname}/>
+                            </Scene>
+
+                            <Scene key='main'>
+                                <Scene
+                                    initial
+                                    key='groupPage'
+                                    title='Sing Along'
+                                    rightTitle='Menu'
+                                    onRight={() => null}
+                                    component={GroupPage}/>
                             </Scene>
                         </Scene>
                     </Router>
