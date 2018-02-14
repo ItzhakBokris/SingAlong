@@ -1,5 +1,6 @@
 import firebase from 'firebase';
 import {GROUP_NAME_CHANGED, NICKNAME_CHANGED, GROUP_FETCH, CLEAR_DATA, SONG_SELECTED} from './types';
+import {fetchGroup} from './groupAction';
 
 export const groupNameChanged = (text) => ({
     type: GROUP_NAME_CHANGED,
@@ -21,14 +22,9 @@ export const clearData = () => ({
 });
 
 export const groupCreate = (name, creator, songs) => {
+    songs = songs.map(song => typeof song === 'string' ? song : song.key);
     return (dispatch) => firebase.database().ref('/groups')
         .push({name, creator, songs, participants: [creator]})
-        .then(value => groupCreateSuccess(dispatch, value.key), () => groupCreateFailed(dispatch))
-        .catch(() => groupCreateFailed(dispatch));
+        .then(result => dispatch(fetchGroup(result.key)), () => dispatch({type: GROUP_FETCH}))
+        .catch(() => dispatch({type: GROUP_FETCH}));
 };
-
-const groupCreateSuccess = (dispatch, groupKey) => firebase.database().ref(`/groups/${groupKey}`)
-    .on('value', snapshot => dispatch({type: GROUP_FETCH, payload: snapshot.val()}));
-
-const groupCreateFailed = (dispatch) => dispatch({type: GROUP_FETCH});
-

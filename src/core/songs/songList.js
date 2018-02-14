@@ -7,7 +7,7 @@ import {Colors} from "../../styles/appTheme";
 export default class SongList extends Component {
 
     static propTypes = {
-        songs: PropTypes.array.isRequired,
+        songs: PropTypes.array.isRequired
     };
 
     static defaultProps = {
@@ -46,7 +46,7 @@ export default class SongList extends Component {
     renderSongRow(song) {
         return (
             <ListItem
-                key={song.name}
+                key={song.key}
                 title={song.name}
                 subtitle={song.artist}
                 rightIcon={this.renderSongRightIcon(song)}
@@ -56,7 +56,7 @@ export default class SongList extends Component {
     }
 
     renderSongRightIcon(song) {
-        if (this.props.selectedSongs.some(selectedSong => selectedSong.name === song.name)) {
+        if (this.props.selectedSongs.some(selectedSong => selectedSong.key === song.key)) {
             return {name: 'check-circle', color: Colors.success};
         }
         return {color: 'transparent'};

@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {Actions} from 'react-native-router-flux';
 import {clearData, groupCreate, nicknameChanged} from "../../../actions";
 import EditGroupProperty from "../../../core/onBoarding/editGroupProperty";
+import Toast from 'react-native-root-toast';
 
 class EditNickname extends Component {
 
@@ -11,10 +12,19 @@ class EditNickname extends Component {
     };
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.group !== this.props.group && nextProps.group.name) {
-            this.props.clearData();
+        if (this.state.isLoading && nextProps.groupData !== this.props.groupData) {
             this.setState({isLoading: false});
-            Actions.main();
+            if (nextProps.groupData.group) {
+                this.props.clearData();
+                Actions.main();
+            } else {
+                Toast.show('Something went wrong please try again', {
+                    duration: Toast.durations.SHORT,
+                    position: Toast.positions.BOTTOM,
+                    animation: true,
+                    hideOnPress: true
+                });
+            }
         }
     }
 
@@ -40,6 +50,6 @@ class EditNickname extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({...state.onBoarding, group: state.group});
+const mapStateToProps = (state) => ({...state.onBoarding, groupData: state.groupData});
 
 export default connect(mapStateToProps, {nicknameChanged, groupCreate, clearData})(EditNickname);

@@ -2,11 +2,11 @@ import {Platform} from "react-native";
 import {StatusBar} from 'react-native';
 
 export const Colors = {
-    darker: '#0c2640',
-    dark: '#174c81',
-    primary: '#2372c2',
-    light: '#5298e0',
-    lighter: '#93bfeb',
+    darker: '#b71c1c',
+    dark: '#d32f2f',
+    primary: '#f44336',
+    light: '#e57373',
+    lighter: '#ffcdd2',
 
     success: '#5cb85c',
     info: '#5bc0de',
@@ -14,11 +14,12 @@ export const Colors = {
     danger: '#d9534f',
 
     subtitleTextColor: '#73808c',
-    lightTextColor: '#aaa'
+    lightTextColor: '#aaa',
+    lighterTextColor: '#ddd'
 };
 
 export const Styles = {
-    navigationBar: Platform.OS === 'android' ? {
+    navBar: Platform.OS === 'android' ? {
         navigationBarStyle: {
             backgroundColor: Colors.primary
         },
@@ -32,20 +33,14 @@ export const Styles = {
         backButtonTextStyle: 'white'
     } : null,
 
-    translucentNavigationBar: {
+    translucentNavBar: {
         navigationBarStyle: {
             backgroundColor:'transparent',
             marginBottom:'-100%',
             borderBottomWidth: 0,
             marginTop: StatusBar.currentHeight,
             elevation: 0,
-        },
-        titleStyle: {
-            color: 'white',
-            justifyContent: 'space-between',
-            textAlign: 'center',
-            alignSelf: 'center'
-        },
+        }
     },
 
     statusBar: Platform.OS === 'android' ? {

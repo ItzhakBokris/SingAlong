@@ -13,7 +13,7 @@ export default (state = INITIAL_STATE, action) => {
         case NICKNAME_CHANGED:
             return {...state, nickname: action.payload};
         case SONG_SELECTED:
-            const selectedSongs = state.selectedSongs.filter(song => song.name !== action.payload.name);
+            const selectedSongs = state.selectedSongs.filter(song => song.key !== action.payload.key);
             if (selectedSongs.length === state.selectedSongs.length) {
                 selectedSongs.push(action.payload);
             }

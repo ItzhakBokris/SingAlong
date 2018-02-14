@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {StatusBar, StyleSheet, View, UIManager, Platform} from "react-native";
+import {StatusBar, StyleSheet, View, UIManager, Platform} from 'react-native';
 import {Scene, Router} from 'react-native-router-flux';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
@@ -40,7 +40,7 @@ export default class App extends Component {
                 <View style={styles.container}>
                     <StatusBar {...Styles.statusBar}/>
 
-                    <Router {...Styles.navigationBar}>
+                    <Router {...Styles.navBar}>
                         <Scene hideNavBar key='root'>
                             <Scene key='onBoarding'>
                                 <Scene
@@ -74,17 +74,12 @@ export default class App extends Component {
                                     component={EditNickname}/>
                             </Scene>
 
-                            <Scene key='main' initial={true}>
+                            <Scene key='main' initial={false}>
                                 <Scene
                                     initial
-                                    rightTitle=''
-                                    leftTitle='a'
-                                    onRight={() => null}
-                                    onLeft={() => null}
                                     key='groupPage'
-                                    title='Sing Along'
                                     component={GroupPage}
-                                    {...Styles.translucentNavigationBar}/>
+                                    {...Styles.translucentNavBar}/>
                             </Scene>
                         </Scene>
                     </Router>

@@ -5,7 +5,7 @@ import {connect} from "react-redux";
 import {SearchBar, Badge} from 'react-native-elements'
 import SongList from "./songList";
 import {Styles} from "../../styles/appTheme";
-import {fetchSongs} from "../../actions";
+import {searchSongs} from '../../actions';
 
 const PAGE_SIZE = 25;
 
@@ -26,14 +26,14 @@ class SearchSong extends Component {
     };
 
     componentWillMount() {
-        this.props.fetchSongs(this.state.songsCount);
+        this.props.searchSongs(this.state.songsCount);
     }
 
     componentWillUpdate(nextProps, nextState) {
-        const {selectedSongs, songs, fetchSongs} = this.props;
+        const {selectedSongs, searchedSongs, searchSongs} = this.props;
         const {searchText, songsCount} = this.state;
 
-        if (nextProps.songs !== songs) {
+        if (nextProps.searchedSongs !== searchedSongs) {
             this.setState({loading: false});
         }
         if (selectedSongs.length !== nextProps.selectedSongs.length &&
@@ -41,7 +41,7 @@ class SearchSong extends Component {
             LayoutAnimation.spring();
         }
         if (nextState.searchText !== searchText || nextState.songsCount !== songsCount) {
-            fetchSongs(nextState.songsCount, nextState.searchText);
+            searchSongs(nextState.songsCount, nextState.searchText);
         }
     }
 
@@ -50,7 +50,7 @@ class SearchSong extends Component {
     }
 
     onEndReached() {
-        if (this.props.songs.length === this.state.songsCount) {
+        if (this.props.searchedSongs.length === this.state.songsCount) {
             this.setState({songsCount: this.state.songsCount + PAGE_SIZE});
         }
     }
@@ -91,7 +91,7 @@ class SearchSong extends Component {
     renderSelectedSong(song) {
         return (
             <Badge
-                key={song.name}
+                key={song.key}
                 containerStyle={styles.selectedSongBadge}
                 onPress={() => this.props.onSongPress(song)}>
 
@@ -108,7 +108,7 @@ class SearchSong extends Component {
         }
         return (
             <SongList
-                songs={this.props.songs}
+                songs={this.props.searchedSongs}
                 selectedSongs={this.props.selectedSongs}
                 onSongPress={this.props.onSongPress.bind(this)}
                 onEndReached={this.onEndReached.bind(this)}/>
@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({songs: state.songs});
+const mapStateToProps = (state) => ({searchedSongs: state.searchedSongs});
 
-export default connect(mapStateToProps, {fetchSongs})(SearchSong);
+export default connect(mapStateToProps, {searchSongs})(SearchSong);
 
 
