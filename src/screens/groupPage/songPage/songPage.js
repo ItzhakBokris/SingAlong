@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image, StatusBar, Text, ScrollView} from 'react-native';
+import {View, StyleSheet, Image, Text, ScrollView} from 'react-native';
 import {connect} from 'react-redux';
+import {Actions} from 'react-native-router-flux';
 import PropTypes from 'prop-types';
 import {Icon} from 'react-native-elements';
-import {Colors, Styles} from '../../styles/appTheme';
-import {fetchLyrics} from '../../actions';
+import {Colors, Styles} from '../../../styles/appTheme';
+import {fetchSongLyrics} from '../../../actions/index';
 
 class SongPage extends Component {
 
@@ -13,12 +14,12 @@ class SongPage extends Component {
     };
 
     componentWillMount() {
-        this.props.fetchLyrics(this.props.song);
+        this.props.fetchSongLyrics(this.props.song);
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.song !== this.props.song) {
-            this.props.fetchLyrics(nextProps.song);
+            this.props.fetchSongLyrics(nextProps.song);
         }
     }
 
@@ -29,7 +30,6 @@ class SongPage extends Component {
         }
         return (
             <View style={styles.container}>
-                <StatusBar {...Styles.translucentStatusBar}/>
 
                 <Image
                     style={styles.coverImageStyle}
@@ -86,6 +86,7 @@ class SongPage extends Component {
                             name='playlist-plus'
                             type='material-community'
                             size={28}
+                            onPress={() => Actions.addSongs()}
                             containerStyle={styles.iconContainer}
                             color='white'/>
 
@@ -125,11 +126,10 @@ class SongPage extends Component {
     }
 
     getCoverImage() {
-        console.log(this.props.song);
         if (this.props.song.coverImage) {
             return {uri: this.props.song.coverImage};
         }
-        return require('../../../assets/defaultCover.jpg')
+        return require('../../../../assets/defaultCover.jpg')
     }
 }
 
@@ -193,5 +193,5 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({...state.songData});
 
-export default connect(mapStateToProps, {fetchLyrics})(SongPage);
+export default connect(mapStateToProps, {fetchSongLyrics})(SongPage);
 

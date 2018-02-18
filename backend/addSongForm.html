@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Add Song</title>
+        <style>
+            .input-style {
+                width: 500px;
+                height: 25px;
+                font-size: 16px;
+            }
+            .text-area-style {
+                font-size: 16px;
+                width: 800px;
+            }
+            .submit-button {
+                font-size: 24px;
+                color: white;
+                padding: 10px;
+                background-color: #093;
+            }
+        </style>
+    </head>
+    <body>
+        <form method="post" action="https://us-central1-singalong-6aaf5.cloudfunctions.net/addSong">
+            <label for="songName">Song name:</label>
+            <input id="songName" type="text" name="name" class="input-style">
+            <br><br>
+            <label for="artistName">Artist name:</label>
+            <input id="artistName" type="text" name="artist" class="input-style">
+            <br><br>
+            <label for="avatarImage">Avatar image:</label>
+            <input id="avatarImage" type="text" name="image" class="input-style">
+            <br><br>
+            <label for="coverImage">Cover image (optional):</label>
+            <input id="coverImage" type="text" name="coverImage" class="input-style">
+            <br><br>
+            <label for="lyrics">Lyrics:</label><br>
+            <textarea id="lyrics" name="lyrics" rows="20" class="text-area-style"></textarea>
+            <br><br>
+            <input type="submit" value="Submit" class="submit-button">
+        </form>
+    </body>
+</html>

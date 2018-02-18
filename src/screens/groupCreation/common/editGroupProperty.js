@@ -3,9 +3,9 @@ import {View, StyleSheet, Text} from 'react-native';
 import PropTypes from 'prop-types';
 import {Actions} from 'react-native-router-flux';
 import Toast from 'react-native-root-toast';
-import {Colors} from '../../styles/appTheme';
-import {Input} from '../../common';
-import SongList from '../songs/songList';
+import {Colors} from '../../../styles/appTheme';
+import {Input} from '../../../common/index';
+import SongList from '../../common/songList';
 
 export default class EditGroupProperty extends Component {
 

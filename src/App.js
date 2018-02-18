@@ -1,17 +1,18 @@
 import React, {Component} from "react";
-import {StatusBar, StyleSheet, View, UIManager, Platform} from 'react-native';
+import {StatusBar, StyleSheet, View, UIManager, Platform, I18nManager} from 'react-native';
 import {Scene, Router} from 'react-native-router-flux';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
-import {Styles} from '../styles/appTheme';
-import EnterGroup from './scenes/onBoarding/enterGroup';
-import SelectSongs from './scenes/onBoarding/selectSongs'
-import EditGroupName from './scenes/onBoarding/editGroupName'
-import EditNickname from './scenes/onBoarding/editNickname'
-import reducers from '../reducers/index';
-import GroupPage from "./scenes/main/groupPage";
+import {Styles} from './styles/appTheme';
+import EnterGroup from './screens/onBoarding/enterGroup';
+import SelectSongs from './screens/groupCreation/selectSongs'
+import EditGroupName from './screens/groupCreation/editGroupName'
+import EditNickname from './screens/groupCreation/editNickname'
+import reducers from './reducers/index';
+import GroupPage from "./screens/groupPage/groupPage";
+import AddSongs from "./screens/groupPage/songPage/addSongs";
 
 export default class App extends Component {
 
@@ -20,6 +21,11 @@ export default class App extends Component {
         const {setLayoutAnimationEnabledExperimental} = UIManager;
         if (Platform.OS === 'android' && setLayoutAnimationEnabledExperimental) {
             setLayoutAnimationEnabledExperimental(true);
+        }
+        try {
+            I18nManager.allowRTL(false);
+        } catch (e) {
+            console.log(e);
         }
     }
 
@@ -80,6 +86,14 @@ export default class App extends Component {
                                     key='groupPage'
                                     component={GroupPage}
                                     {...Styles.translucentNavBar}/>
+
+                                <Scene
+                                    backTitle='Back'
+                                    rightTitle='Add'
+                                    onRight={() => null}
+                                    key='addSongs'
+                                    title='Add Songs'
+                                    component={AddSongs}/>
                             </Scene>
                         </Scene>
                     </Router>

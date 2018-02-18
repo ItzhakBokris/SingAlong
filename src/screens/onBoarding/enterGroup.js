@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {TextInput, StyleSheet, View, Text} from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import {Button, Icon} from 'react-native-elements';
-import {Colors} from '../../../styles/appTheme';
+import {Colors} from '../../styles/appTheme';
 
 export default class EnterGroup extends Component {
 
