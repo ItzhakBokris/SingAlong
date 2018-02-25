@@ -9,15 +9,16 @@ import {
     GROUP_SONGS_ADD_FAILURE,
     SONGS_SEARCH_FAILURE,
     SONGS_SEARCH_REQUEST,
-    SONGS_SEARCH_SUCCESS
+    SONGS_SEARCH_SUCCESS, SONGS_CLEAR
 } from './actionTypes';
 import {SongsConfig} from '../../config';
 import {fetchSongLyrics} from '../lyrics/actions';
+import {USER_NICKNAME_SET} from '../user/actionTypes';
 
 export const fetchGroupSongs = (group) => {
     return (dispatch) => {
         dispatch({type: GROUP_SONGS_FETCH_REQUEST});
-        const promises = group.songs.map(key => firebase.database().ref(`/songs/${key}`).once('value'));
+        const promises = group.items.map(item => firebase.database().ref(`/songs/${item.song}`).once('value'));
         return Promise.all(promises)
             .then(result => {
                 const songs = result.reduce((array, snapshot) => [...array, snapshotToObject(snapshot)], []);
@@ -28,11 +29,11 @@ export const fetchGroupSongs = (group) => {
     };
 };
 
-export const addSongsToGroup = (group, newSongs) => {
+export const addSongsToGroup = (group, user, newSongs) => {
     return (dispatch) => {
         dispatch({type: GROUP_SONGS_ADD_REQUEST});
         return firebase.database().ref(`/groups/${group.key}`)
-            .update({songs: [...group.songs, ...newSongs]})
+            .update({items: [...group.items, ...newSongs.map(song => ({song, user}))]})
             .then(() => dispatch({type: GROUP_SONGS_ADD_SUCCESS}))
             .catch(error => dispatch({type: GROUP_SONGS_ADD_FAILURE, payload: error.message}));
     };

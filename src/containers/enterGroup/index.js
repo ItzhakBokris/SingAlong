@@ -9,19 +9,28 @@ import {showError} from '../../utils';
 
 class EnterGroup extends Component {
 
+    state = {
+        pinCodeSubmitted: false
+    };
+
     componentWillReceiveProps(nextProps) {
-        if (nextProps.isRequested !== this.props.isRequested) {
+        if (this.state.pinCodeSubmitted) {
             if (nextProps.isRequested) {
                 // TODO: show loading in the pin-code input
-            } else if (!nextProps.error) {
-                Actions.main();
             } else {
-                // TODO: check the error
-                showError('Wrong pin code, please try again');
+                this.setState({pinCodeSubmitted: false});
+                if (!nextProps.error) {
+                    Actions.joinGroup();
+                } else {
+                    // TODO: check the error
+                    showError('Wrong pin code, please try again');
+                }
             }
         }
     }
+
     onSubmitPinCode(event) {
+        this.setState({pinCodeSubmitted: true});
         this.props.fetchGroupByPinCode(event.nativeEvent.text);
     }
 
@@ -99,6 +108,6 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({...state.groupData});
+const mapStateToProps = (state) => ({...state.groupData, ...state.userData});
 
 export default connect(mapStateToProps, {fetchGroupByPinCode})(EnterGroup);

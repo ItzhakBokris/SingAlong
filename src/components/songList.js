@@ -2,13 +2,18 @@ import React, {Component} from 'react';
 import {ListView, StyleSheet} from 'react-native'
 import PropTypes from 'prop-types';
 import {Avatar, List, ListItem} from 'react-native-elements'
-import {Colors} from "../styles";
+import {Colors} from '../styles';
 
 export class SongList extends Component {
 
     static propTypes = {
         songs: PropTypes.array.isRequired,
         selectedSongs: PropTypes.array,
+        addedSongs: PropTypes.arrayOf(PropTypes.shape({
+            song: PropTypes.string.isRequired,
+            user: PropTypes.string.isRequired
+        })),
+        disableIfAdded: PropTypes.bool,
         containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
         onEndReached: PropTypes.func,
         onSongPress: PropTypes.func
@@ -16,6 +21,7 @@ export class SongList extends Component {
 
     static defaultProps = {
         selectedSongs: [],
+        addedSongs: [],
         containerStyle: {},
         onEndReached: () => null,
         onSongPress: () => null
@@ -35,11 +41,15 @@ export class SongList extends Component {
     }
 
     renderSongRow(song) {
+        const addedSong = this.props.addedSongs && this.props.addedSongs.find(item => item.song === song.key);
+        const rightTitle = addedSong && 'Added by ' + addedSong.user;
         return (
             <ListItem
                 key={song.key}
                 title={song.name}
                 subtitle={song.artist}
+                disabled={this.props.disableIfAdded && addedSong != null}
+                rightTitle={rightTitle}
                 rightIcon={this.renderSongRightIcon(song)}
                 avatar={<Avatar medium source={{uri: song.image}}/>}
                 onPress={() => this.props.onSongPress(song)}/>
@@ -50,7 +60,7 @@ export class SongList extends Component {
         if (this.props.selectedSongs.some(selectedSong => selectedSong.key === song.key)) {
             return {name: 'check-circle', color: Colors.success};
         }
-        return {color: 'transparent'};
+        return {color: 'transparent', style: {width: 1}};
     }
 
     render() {

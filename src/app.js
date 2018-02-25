@@ -8,7 +8,8 @@ import firebase from 'firebase';
 import {Styles} from './styles';
 import rootReducer from './store/reducer';
 import EnterGroup from './containers/enterGroup';
-import CreateGroup from './containers/createGroup'
+import CreateGroup from './containers/enterGroup/createGroup'
+import JoinGroup from './containers/enterGroup/joinGroup'
 import SongPage from './containers/group/song'
 import Playlist from "./containers/group/playlist";
 import AddSongs from "./containers/group/addSongs";
@@ -61,9 +62,17 @@ export default class App extends Component {
                                     key='createGroup'
                                     title='New Group'
                                     component={CreateGroup}/>
+
+                                <Scene
+                                    backTitle='Back'
+                                    rightTitle='Join'
+                                    onRight={() => null}
+                                    key='joinGroup'
+                                    title='Join To Group'
+                                    component={JoinGroup}/>
                             </Scene>
 
-                            <Scene key='main' initial={false}>
+                            <Scene key='main' modal>
                                 <Scene
                                     initial
                                     key='songPage'

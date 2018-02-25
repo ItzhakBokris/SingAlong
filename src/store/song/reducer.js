@@ -4,7 +4,8 @@ import {
     GROUP_SONGS_FETCH_FAILURE,
     GROUP_SONGS_ADD_FAILURE,
     GROUP_SONGS_ADD_REQUEST,
-    GROUP_SONGS_ADD_SUCCESS
+    GROUP_SONGS_ADD_SUCCESS,
+    SONGS_CLEAR
 } from './actionTypes';
 
 const INITIAL_STATE = {
@@ -29,6 +30,8 @@ export const SongReducer = (state = INITIAL_STATE, action) => {
             return {...state, isAddRequested: false, addError: null};
         case GROUP_SONGS_ADD_FAILURE:
             return {...state, isAddRequested: false, addError: action.payload};
+        case SONGS_CLEAR:
+            return INITIAL_STATE;
         default:
             return state;
     }

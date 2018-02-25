@@ -3,11 +3,11 @@ import {View, StyleSheet} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {ViewPager} from 'rn-viewpager';
-import {changeName, changeCreator, changeSongs} from '../../store/groupCreation/actions';
-import {createGroup} from '../../store/group/actions';
-import SearchSong from '../search';
-import {EditGroupProperty} from './editGroupProperty';
-import {showError} from '../../utils';
+import {changeName, changeCreator, changeSongs} from '../../../store/groupCreation/actions';
+import {createGroup} from '../../../store/group/actions';
+import SearchSong from '../../search/index';
+import {EditGroupProperty} from '../editGroupProperty';
+import {showError} from '../../../utils/index';
 
 class CreateGroup extends Component {
 

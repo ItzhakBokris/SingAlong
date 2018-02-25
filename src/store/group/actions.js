@@ -5,10 +5,17 @@ import {
     GROUP_FETCH_FAILURE,
     GROUP_CREATE_REQUEST,
     GROUP_CREATE_SUCCESS,
-    GROUP_CREATE_FAILURE
+    GROUP_CREATE_FAILURE,
+    GROUP_JOIN_REQUEST,
+    GROUP_JOIN_SUCCESS,
+    GROUP_JOIN_FAILURE, GROUP_CLEAR
 } from './actionTypes';
+
+import {USER_NICKNAME_SET} from '../user/actionTypes';
+
 import {generateUid, hashCode, snapshotToArray, snapshotToObject} from '../../utils';
 import {fetchGroupSongs} from '../song/actions';
+import {SONGS_CLEAR} from '../song/actionTypes';
 
 export const fetchGroup = (groupKey) => {
     return (dispatch) => {
@@ -20,7 +27,7 @@ export const fetchGroup = (groupKey) => {
                 dispatch(fetchGroupSongs(group));
             },
             error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
-    }
+    };
 };
 
 export const fetchGroupByPinCode = (pinCode) => {
@@ -37,19 +44,46 @@ export const fetchGroupByPinCode = (pinCode) => {
                 }
             },
             error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
-    }
+    };
 };
 
 export const createGroup = (name, creator, songs) => {
     return (dispatch) => {
         dispatch({type: GROUP_CREATE_REQUEST});
-        const pinCode = hashCode(generateUid());
         return firebase.database().ref('/groups')
-            .push({name, creator, songs, pinCode, participants: [creator]})
+            .push({
+                name,
+                creator,
+                items: songs.map(song => ({song, user: creator})),
+                pinCode: hashCode(generateUid()),
+                participants: [creator]
+            })
             .then(result => {
                 dispatch({type: GROUP_CREATE_SUCCESS});
+                dispatch({type: USER_NICKNAME_SET, payload: creator});
                 dispatch(fetchGroup(result.key));
             })
             .catch(error => dispatch({type: GROUP_CREATE_FAILURE, payload: error.message}));
-    }
+    };
+};
+
+export const joinToGroup = (group, nickname) => {
+    return (dispatch) => {
+        dispatch({type: GROUP_JOIN_REQUEST});
+        return firebase.database().ref(`/groups/${group.key}`)
+            .update({participants: [...group.participants, nickname]})
+            .then(() => {
+                dispatch({type: GROUP_JOIN_SUCCESS});
+                dispatch({type: USER_NICKNAME_SET, payload: nickname});
+            })
+            .catch(error => dispatch({type: GROUP_JOIN_FAILURE, payload: error.message}));
+    };
+};
+
+export const clearGroup = () => {
+    return (dispatch) => {
+        dispatch({type: GROUP_CLEAR});
+        dispatch({type: SONGS_CLEAR});
+        dispatch({type: USER_NICKNAME_SET});
+    };
 };

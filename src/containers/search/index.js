@@ -41,6 +41,10 @@ class SearchSong extends Component {
         }
     }
 
+    getAddedSongs() {
+
+    }
+
     renderSelectedSongsCarousel() {
         if (this.props.selectedSongs.length > 0) {
             return (
@@ -81,6 +85,8 @@ class SearchSong extends Component {
             <SongList
                 songs={this.props.songs}
                 selectedSongs={this.props.selectedSongs}
+                disableIfAdded={true}
+                addedSongs={this.props.group && this.props.group.items}
                 onSongPress={this.onSongPress.bind(this)}
                 onEndReached={this.onEndReached.bind(this)}/>
         );
@@ -123,6 +129,6 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({...state.searchData});
+const mapStateToProps = (state) => ({...state.groupData, ...state.searchData});
 
 export default connect(mapStateToProps, {searchSongs, changeSelectedSongs})(SearchSong);

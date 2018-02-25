@@ -7,9 +7,11 @@ class Playlist extends Component {
 
     render() {
         return (
-            <View style={{flex:1}}>
+            <View style={{flex: 1}}>
                 <Text>{this.props.group.pinCode}</Text>
-                <SongList songs={this.props.groupSongs}/>
+                <SongList
+                    songs={this.props.groupSongs}
+                    addedSongs={this.props.group.items}/>
             </View>
         );
     }

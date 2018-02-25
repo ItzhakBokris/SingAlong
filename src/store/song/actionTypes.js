@@ -9,3 +9,5 @@ export const GROUP_SONGS_ADD_FAILURE = 'group_songs_add_failure';
 export const SONGS_SEARCH_REQUEST = 'songs_search_request';
 export const SONGS_SEARCH_SUCCESS = 'songs_search_success';
 export const SONGS_SEARCH_FAILURE = 'songs_search_failure';
+
+export const SONGS_CLEAR = 'songs_clear';

@@ -25,9 +25,9 @@ class AddSongs extends Component {
     }
 
     onAddPress() {
-        const {group, selectedSongs, addSongsToGroup} = this.props;
+        const {group, nickname, selectedSongs, addSongsToGroup} = this.props;
         if (selectedSongs.length > 0) {
-            addSongsToGroup(group, selectedSongs.map(song => song.key));
+            addSongsToGroup(group, nickname, selectedSongs.map(song => song.key));
         } else {
             showError('Please select at lease one song');
         }
@@ -40,6 +40,6 @@ class AddSongs extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({...state.groupData, ...state.songData, ...state.searchData});
+const mapStateToProps = (state) => ({...state.groupData, ...state.userData, ...state.songData, ...state.searchData});
 
 export default connect(mapStateToProps, {addSongsToGroup})(AddSongs);

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image, Text, ScrollView} from 'react-native';
+import {View, StyleSheet, Image, Text, ScrollView, StatusBar} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
-import {Colors} from '../../../styles';
+import {Colors, Styles} from '../../../styles';
 import {fetchSongLyrics} from '../../../store/lyrics/actions';
 
 class SongPage extends Component {
