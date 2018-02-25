@@ -1,0 +1,7 @@
+export const GROUP_FETCH_REQUEST = 'group_fetch_request';
+export const GROUP_FETCH_SUCCESS = 'group_fetch_success';
+export const GROUP_FETCH_FAILURE = 'group_fetch_failure';
+
+export const GROUP_CREATE_REQUEST = 'group_create_request';
+export const GROUP_CREATE_SUCCESS = 'group_create_success';
+export const GROUP_CREATE_FAILURE = 'group_create_failure';
