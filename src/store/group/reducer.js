@@ -7,6 +7,11 @@ import {
 
 const INITIAL_STATE = {
     group: null,
+    // group: {
+    //     name: 'Group Name',
+    //     creator: 'Ronni',
+    //     members: ['Ronni', 'David', 'Eli']
+    // },
     isRequested: false,
     error: null
 };

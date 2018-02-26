@@ -54,9 +54,9 @@ export const createGroup = (name, creator, songs) => {
             .push({
                 name,
                 creator,
-                items: songs.map(song => ({song, user: creator})),
+                items: songs.map(song => ({song, member: creator})),
                 pinCode: hashCode(generateUid()),
-                participants: [creator]
+                members: [creator]
             })
             .then(result => {
                 dispatch({type: GROUP_CREATE_SUCCESS});
@@ -71,7 +71,7 @@ export const joinToGroup = (group, nickname) => {
     return (dispatch) => {
         dispatch({type: GROUP_JOIN_REQUEST});
         return firebase.database().ref(`/groups/${group.key}`)
-            .update({participants: [...group.participants, nickname]})
+            .update({members: [...group.members, nickname]})
             .then(() => {
                 dispatch({type: GROUP_JOIN_SUCCESS});
                 dispatch({type: USER_NICKNAME_SET, payload: nickname});

@@ -11,7 +11,7 @@ export class SongList extends Component {
         selectedSongs: PropTypes.array,
         addedSongs: PropTypes.arrayOf(PropTypes.shape({
             song: PropTypes.string.isRequired,
-            user: PropTypes.string.isRequired
+            member: PropTypes.string.isRequired
         })),
         disableIfAdded: PropTypes.bool,
         containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
@@ -42,7 +42,7 @@ export class SongList extends Component {
 
     renderSongRow(song) {
         const addedSong = this.props.addedSongs && this.props.addedSongs.find(item => item.song === song.key);
-        const rightTitle = addedSong && 'Added by ' + addedSong.user;
+        const rightTitle = addedSong && 'Added by ' + addedSong.member;
         return (
             <ListItem
                 key={song.key}

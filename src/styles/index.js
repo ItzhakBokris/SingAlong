@@ -13,9 +13,12 @@ export const Colors = {
     warning: '#f0ad4e',
     danger: '#d9534f',
 
-    subtitleTextColor: '#73808c',
-    lightTextColor: '#aaa',
-    lighterTextColor: '#ddd'
+    blue: '#298eec',
+
+    grey: '#73808c',
+    lightGrey: '#aaa',
+    lighterGrey: '#ddd',
+    backgroundGrey: '#f9f9f9'
 };
 
 export const Styles = {

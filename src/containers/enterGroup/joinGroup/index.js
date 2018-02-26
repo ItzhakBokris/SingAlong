@@ -15,7 +15,8 @@ class JoinGroup extends Component {
             onBack: () => {
                 this.props.clearGroup();
                 Actions.pop();
-            }
+            },
+            title: 'Join to ' + this.props.group.name
         });
     }
 

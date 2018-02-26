@@ -25,12 +25,12 @@ export class Input extends Component {
                         size={24}
                         type='entypo'
                         name='pencil'
-                        color={Platform.OS !== 'ios' ? Colors.primary : Colors.lightTextColor}/>
+                        color={Platform.OS !== 'ios' ? Colors.primary : Colors.lightGrey}/>
 
                     <TextInput
                         underlineColorAndroid='transparent'
                         style={styles.nameInput}
-                        placeholderTextColor={Colors.lightTextColor}
+                        placeholderTextColor={Colors.lightGrey}
                         placeholder={this.props.placeholder}
                         value={this.props.value}
                         onChangeText={this.props.onChangeText.bind(this)}/>

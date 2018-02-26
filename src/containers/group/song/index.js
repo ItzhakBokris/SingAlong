@@ -3,7 +3,7 @@ import {View, StyleSheet, Image, Text, ScrollView, StatusBar} from 'react-native
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
-import {Colors, Styles} from '../../../styles';
+import {Colors} from '../../../styles';
 import {fetchSongLyrics} from '../../../store/lyrics/actions';
 
 class SongPage extends Component {
@@ -30,14 +30,14 @@ class SongPage extends Component {
                         </Text>
 
                         <View style={{flexDirection: 'row', marginTop: 10}}>
-                            <Text style={{color:Colors.primary}}>23 </Text>
+                            <Text style={{color: Colors.primary}}>23 </Text>
                             <Icon
                                 name='heart-outline'
                                 type='material-community'
                                 size={16}
                                 color={Colors.primary}/>
 
-                            <Text style={{color:Colors.primary, marginLeft:10}}>78 </Text>
+                            <Text style={{color: Colors.primary, marginLeft: 10}}>78 </Text>
                             <Icon
                                 type='simple-line-icon'
                                 name='microphone'
@@ -52,27 +52,32 @@ class SongPage extends Component {
 
                     <View style={styles.sideButtons}>
                         <Icon
+                            name='account-circle'
+                            type='material-community'
+                            onPress={() => Actions.groupDetails()}
+                            containerStyle={styles.sideButtonContainer}
+                            {...iconButtonStyle}/>
+
+                        <Icon
                             name='music-note'
                             type='material-community'
-                            size={28}
-                            containerStyle={{marginBottom:15}}
-                            color='white'/>
+                            containerStyle={styles.sideButtonContainer}
+                            {...iconButtonStyle}/>
 
                         <Icon
                             name='format-size'
                             type='material-community'
-                            size={28}
-                            color='white'/>
+                            containerStyle={styles.sideButtonContainer}
+                            {...iconButtonStyle}/>
                     </View>
 
                     <View style={styles.footerButtons}>
                         <Icon
                             name='playlist-plus'
                             type='material-community'
-                            size={28}
                             onPress={() => Actions.addSongs()}
-                            containerStyle={styles.iconContainer}
-                            color='white'/>
+                            containerStyle={styles.footerButtonContainer}
+                            {...iconButtonStyle}/>
 
                         <Icon
                             reverse
@@ -85,25 +90,9 @@ class SongPage extends Component {
                         <Icon
                             name='playlist-play'
                             type='material-community'
-                            size={28}
                             onPress={() => Actions.playlist()}
-                            containerStyle={styles.iconContainer}
-                            color='white'/>
-
-                        {/*<Icon*/}
-                        {/*name='playlist-plus'*/}
-                        {/*type='material-community'*/}
-                        {/*size={28}*/}
-                        {/*color={Colors.lighter}*/}
-                        {/*/>*/}
-
-                        {/*<Icon*/}
-                        {/*name='account-plus-outline'*/}
-                        {/*type='material-community'*/}
-                        {/*size={28}*/}
-                        {/*color={Colors.lighter}*/}
-                        {/*/>*/}
-
+                            containerStyle={styles.footerButtonContainer}
+                            {...iconButtonStyle}/>
                     </View>
                 </View>
             </View>
@@ -153,7 +142,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         paddingVertical: 10,
         paddingHorizontal: 60,
-        color: Colors.lighterTextColor,
+        color: Colors.lighterGrey,
         textAlign: 'center',
         lineHeight: 34,
         fontSize: 21
@@ -168,12 +157,21 @@ const styles = StyleSheet.create({
         position: 'absolute',
         width: 60,
         right: 0,
-        top: 33
+        top: 28
     },
-    iconContainer: {
+    sideButtonContainer: {
+        marginBottom: 20
+    },
+    footerButtonContainer: {
         width: 60
     }
 });
+
+const iconButtonStyle = {
+    size: 28,
+    underlayColor: 'transparent',
+    color: 'white'
+};
 
 const mapStateToProps = (state) => {
     const song = state.songData.groupSongs && state.songData.groupSongs[0];

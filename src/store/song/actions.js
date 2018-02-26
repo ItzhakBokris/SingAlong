@@ -9,11 +9,10 @@ import {
     GROUP_SONGS_ADD_FAILURE,
     SONGS_SEARCH_FAILURE,
     SONGS_SEARCH_REQUEST,
-    SONGS_SEARCH_SUCCESS, SONGS_CLEAR
+    SONGS_SEARCH_SUCCESS
 } from './actionTypes';
 import {SongsConfig} from '../../config';
 import {fetchSongLyrics} from '../lyrics/actions';
-import {USER_NICKNAME_SET} from '../user/actionTypes';
 
 export const fetchGroupSongs = (group) => {
     return (dispatch) => {
@@ -29,11 +28,11 @@ export const fetchGroupSongs = (group) => {
     };
 };
 
-export const addSongsToGroup = (group, user, newSongs) => {
+export const addSongsToGroup = (group, member, newSongs) => {
     return (dispatch) => {
         dispatch({type: GROUP_SONGS_ADD_REQUEST});
         return firebase.database().ref(`/groups/${group.key}`)
-            .update({items: [...group.items, ...newSongs.map(song => ({song, user}))]})
+            .update({items: [...group.items, ...newSongs.map(song => ({song, member}))]})
             .then(() => dispatch({type: GROUP_SONGS_ADD_SUCCESS}))
             .catch(error => dispatch({type: GROUP_SONGS_ADD_FAILURE, payload: error.message}));
     };

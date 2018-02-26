@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
     songsHeader: {
         padding: 10,
         fontWeight: 'bold',
-        color: Colors.subtitleTextColor
+        color: Colors.grey
     }
 });
