@@ -6,12 +6,14 @@ import {
 } from './actionTypes';
 
 const INITIAL_STATE = {
-    group: null,
-    // group: {
-    //     name: 'Group Name',
-    //     creator: 'Ronni',
-    //     members: ['Ronni', 'David', 'Eli']
-    // },
+    //group: null,
+    group: {
+        name: 'Group Name',
+        creator: 'Ronni',
+        members: ['Ronni', 'David', ''],
+        pinCode: '02082389451',
+        link: 'https://group.singalong.com/8af227e3-0396-4e77-9fb7-bad4047cc334'
+    },
     isRequested: false,
     error: null
 };

@@ -13,7 +13,8 @@ import JoinGroup from './containers/enterGroup/joinGroup'
 import SongPage from './containers/group/song'
 import Playlist from './containers/group/playlist';
 import AddSongs from './containers/group/addSongs';
-import GroupDetails from './containers/group/details'
+import GroupDetails from './containers/group/details';
+import InviteMember from './containers/group/inviteMember';
 
 export default class App extends Component {
 
@@ -98,6 +99,12 @@ export default class App extends Component {
                                     backTitle='Back'
                                     key='groupDetails'
                                     component={GroupDetails}/>
+
+                                <Scene
+                                    backTitle='Back'
+                                    key='inviteMember'
+                                    title='Invite Member'
+                                    component={InviteMember}/>
                             </Scene>
                         </Scene>
                     </Router>

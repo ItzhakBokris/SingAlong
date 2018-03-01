@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {ListView, StyleSheet, Text, View} from 'react-native';
+import {ListView, StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
-import {List, ListItem} from 'react-native-elements';
-import {Colors} from '../../../styles';
+import {List, ListItem, Text} from 'react-native-elements';
+import {Colors, Styles} from '../../../styles';
+import {Section} from '../../../components';
 
 class GroupDetails extends Component {
 
@@ -36,39 +37,39 @@ class GroupDetails extends Component {
                 rightTitle={this.getRightTitle(member)}
                 rightTitleStyle={styles.listItemRightTitle}
                 leftIcon={{name: 'user-circle', size: 32, type: 'font-awesome'}}
-                {...listItemStyle}/>
+                {...Styles.listActionItem}/>
         );
     }
 
     render() {
         return (
             <View style={styles.container}>
-                <View style={styles.actionListContainer}>
+                <Section>
                     <ListItem
                         title='Edit profile'
                         onPress={() => null}
                         leftIcon={{name: 'account-edit', type: 'material-community'}}
-                        {...listItemStyle}/>
+                        {...Styles.listActionItem}/>
 
                     <ListItem
-                        title='Invite member via link'
-                        onPress={() => null}
+                        title='Invite member'
+                        onPress={() => Actions.inviteMember()}
                         leftIcon={{name: 'person-add'}}
-                        {...listItemStyle}/>
-                </View>
+                        {...Styles.listActionItem}/>
+                </Section>
 
-                <View style={styles.memberListContainer}>
+                <Section containerStyle={styles.membersContainer}>
                     <Text style={styles.membersCountTitle}>
                         {this.props.group.members.length} Members
                     </Text>
 
-                    <List containerStyle={styles.list}>
+                    <List containerStyle={styles.listContainer}>
                         <ListView
                             enableEmptySections
                             dataSource={this.membersDataSource}
                             renderRow={this.renderMemberRow.bind(this)}/>
                     </List>
-                </View>
+                </Section>
             </View>
         );
     }
@@ -78,41 +79,20 @@ const styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    actionListContainer: {
-        backgroundColor: 'white',
-        shadowColor: 'black',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
-        paddingVertical: 10
-    },
-    memberListContainer: {
-        flex: 1,
-        marginTop: 15,
-        backgroundColor: 'white',
-        shadowColor: 'black',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2
+    membersContainer: {
+        flex: 1
     },
     membersCountTitle: {
-        padding: 15,
         color: Colors.blue,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        paddingTop: 5,
+        paddingLeft: 15,
+        paddingBottom: 10
     },
-    list: {
+    listContainer: {
         borderTopWidth: 0,
         marginTop: 0,
         flex: 1
-    },
-    listItemContainer: {
-        paddingHorizontal: 5,
-        borderBottomWidth: 0
-    },
-    listItemTitleContainer: {
-        marginLeft: 5
     },
     listItemRightTitle: {
         color: Colors.blue,
@@ -120,13 +100,6 @@ const styles = StyleSheet.create({
         fontSize: 12
     }
 });
-
-const listItemStyle = {
-    underlayColor: Colors.backgroundGrey,
-    containerStyle: styles.listItemContainer,
-    titleContainerStyle: styles.listItemTitleContainer,
-    rightIcon: {color: 'transparent', style: {width: 5}}
-};
 
 const mapStateToProps = (state) => ({...state.groupData});
 

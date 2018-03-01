@@ -10,12 +10,10 @@ import {
     GROUP_JOIN_SUCCESS,
     GROUP_JOIN_FAILURE, GROUP_CLEAR
 } from './actionTypes';
-
 import {USER_NICKNAME_SET} from '../user/actionTypes';
-
-import {generateUid, hashCode, snapshotToArray, snapshotToObject} from '../../utils';
-import {fetchGroupSongs} from '../song/actions';
 import {SONGS_CLEAR} from '../song/actionTypes';
+import {fetchGroupSongs} from '../song/actions';
+import {generateUid, hashCode, snapshotToArray, snapshotToObject} from '../../utils';
 
 export const fetchGroup = (groupKey) => {
     return (dispatch) => {
@@ -50,12 +48,14 @@ export const fetchGroupByPinCode = (pinCode) => {
 export const createGroup = (name, creator, songs) => {
     return (dispatch) => {
         dispatch({type: GROUP_CREATE_REQUEST});
+        const groupUid = generateUid();
         return firebase.database().ref('/groups')
             .push({
                 name,
                 creator,
                 items: songs.map(song => ({song, member: creator})),
-                pinCode: hashCode(generateUid()),
+                link: `https://group.singalong.com/${groupUid}`,
+                pinCode: hashCode(groupUid),
                 members: [creator]
             })
             .then(result => {

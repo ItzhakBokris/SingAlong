@@ -41,10 +41,6 @@ class SearchSong extends Component {
         }
     }
 
-    getAddedSongs() {
-
-    }
-
     renderSelectedSongsCarousel() {
         if (this.props.selectedSongs.length > 0) {
             return (

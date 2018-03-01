@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {ListView, StyleSheet} from 'react-native'
 import PropTypes from 'prop-types';
 import {Avatar, List, ListItem} from 'react-native-elements'
-import {Colors} from '../styles';
+import {Colors, FontSizes} from '../styles';
 
 export class SongList extends Component {
 
@@ -50,6 +50,7 @@ export class SongList extends Component {
                 subtitle={song.artist}
                 disabled={this.props.disableIfAdded && addedSong != null}
                 rightTitle={rightTitle}
+                titleStyle={styles.listItemTitle}
                 rightIcon={this.renderSongRightIcon(song)}
                 avatar={<Avatar medium source={{uri: song.image}}/>}
                 onPress={() => this.props.onSongPress(song)}/>
@@ -82,5 +83,8 @@ const styles = StyleSheet.create({
         borderTopWidth: 0,
         marginTop: 0,
         flex: 1
+    },
+    listItemTitle: {
+        fontSize: FontSizes.header
     }
 });
