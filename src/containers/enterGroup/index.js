@@ -4,34 +4,16 @@ import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Button, Icon} from 'react-native-elements';
 import {Colors} from '../../styles';
-import {fetchGroupByPinCode} from '../../store/group/actions';
-import {showError} from '../../utils';
+import LoadGroup from '../enterGroup/loadGroup'
 
 class EnterGroup extends Component {
 
     state = {
-        pinCodeSubmitted: false
+        pinCode: null
     };
 
-    componentWillReceiveProps(nextProps) {
-        if (this.state.pinCodeSubmitted) {
-            if (nextProps.isRequested) {
-                // TODO: show loading in the pin-code input
-            } else {
-                this.setState({pinCodeSubmitted: false});
-                if (!nextProps.error) {
-                    Actions.joinGroup();
-                } else {
-                    // TODO: check the error
-                    showError('Wrong pin code, please try again');
-                }
-            }
-        }
-    }
-
     onSubmitPinCode(event) {
-        this.setState({pinCodeSubmitted: true});
-        this.props.fetchGroupByPinCode(event.nativeEvent.text);
+        this.setState({pinCode: event.nativeEvent.text});
     }
 
     render() {
@@ -63,6 +45,8 @@ class EnterGroup extends Component {
                     icon={<Icon name='group-add' color='white' size={24}/>}
                     buttonStyle={styles.openGroupButton}
                     onPress={() => Actions.createGroup()}/>
+
+                <LoadGroup pinCode={this.state.pinCode}/>
             </View>
         );
     }
@@ -108,6 +92,4 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({...state.groupData, ...state.userData});
-
-export default connect(mapStateToProps, {fetchGroupByPinCode})(EnterGroup);
+export default connect()(EnterGroup);

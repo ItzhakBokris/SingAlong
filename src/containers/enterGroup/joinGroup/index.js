@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {clearGroup, joinToGroup} from '../../../store/group/actions';
 import {EditGroupProperty} from '../editGroupProperty';
-import {showError} from '../../../utils/index';
+import {showToastMessage} from '../../../utils/index';
 import {changeNickname} from '../../../store/groupJoining/actions';
 
 class JoinGroup extends Component {
@@ -27,7 +27,7 @@ class JoinGroup extends Component {
             } else if (!nextProps.error) {
                 Actions.main();
             } else {
-                showError('Something went wrong please try again');
+                showToastMessage('Something went wrong please try again');
                 Actions.refresh({rightTitle: 'Join', onRight: this.onNextPress.bind(this)});
             }
         }
@@ -35,7 +35,9 @@ class JoinGroup extends Component {
 
     onNextPress() {
         if (!this.props.nickname) {
-            showError('Please provide your nickname');
+            showToastMessage('Please provide your nickname');
+        } else if (this.props.group.members.indexOf(this.props.nickname) >= 0) {
+            showToastMessage('A user with this nickname already exists');
         } else {
             this.props.joinToGroup(this.props.group, this.props.nickname);
         }

@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 export class Section extends Component {
 
     static propTypes = {
+        firstChild: PropTypes.bool,
         containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
     };
 
@@ -12,9 +13,17 @@ export class Section extends Component {
         containerStyle: {}
     };
 
+    getStyle() {
+        return [
+            styles.container,
+            this.props.containerStyle,
+            this.props.firstChild ? styles.firstChildContainer : null
+        ];
+    }
+
     render() {
         return (
-            <View style={[styles.container, this.props.containerStyle]}>
+            <View style={this.getStyle()}>
                 {this.props.children}
             </View>
         );
@@ -23,13 +32,16 @@ export class Section extends Component {
 
 const styles = StyleSheet.create({
     container: {
+        marginTop: 15,
         paddingVertical: 10,
-        marginBottom: 15,
         backgroundColor: 'white',
         shadowColor: 'black',
         shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2
+    },
+    firstChildContainer: {
+        marginTop: 0
     }
 });

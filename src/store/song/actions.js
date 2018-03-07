@@ -9,10 +9,12 @@ import {
     GROUP_SONGS_ADD_FAILURE,
     SONGS_SEARCH_FAILURE,
     SONGS_SEARCH_REQUEST,
-    SONGS_SEARCH_SUCCESS
+    SONGS_SEARCH_SUCCESS,
+    PLAYED_SONG_CHANGE_REQUEST,
+    PLAYED_SONG_CHANGE_SUCCESS,
+    PLAYED_SONG_CHANGE_FAILURE
 } from './actionTypes';
 import {SongsConfig} from '../../config';
-import {fetchSongLyrics} from '../lyrics/actions';
 
 export const fetchGroupSongs = (group) => {
     return (dispatch) => {
@@ -22,7 +24,6 @@ export const fetchGroupSongs = (group) => {
             .then(result => {
                 const songs = result.reduce((array, snapshot) => [...array, snapshotToObject(snapshot)], []);
                 dispatch({type: GROUP_SONGS_FETCH_SUCCESS, payload: songs});
-                dispatch(fetchSongLyrics(songs[0]));
             })
             .catch(error => ({type: GROUP_SONGS_FETCH_FAILURE, payload: error.message}));
     };
@@ -57,5 +58,15 @@ export const searchSongs = (searchText = '', fromText = '', pageSize = SongsConf
                 }),
                 error => dispatch({type: SONGS_SEARCH_FAILURE, payload: error.message})
             );
+    };
+};
+
+export const changePlayedSong = (group, songPosition) => {
+    return (dispatch) => {
+        dispatch({type: PLAYED_SONG_CHANGE_REQUEST});
+        return firebase.database().ref(`/groups/${group.key}`)
+            .update({currentPlayed: songPosition})
+            .then(() => dispatch({type: PLAYED_SONG_CHANGE_SUCCESS}))
+            .catch(error => dispatch({type: PLAYED_SONG_CHANGE_FAILURE, payload: error.message}));
     };
 };

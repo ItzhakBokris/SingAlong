@@ -44,7 +44,7 @@ class GroupDetails extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Section>
+                <Section firstChild>
                     <ListItem
                         title='Edit profile'
                         onPress={() => null}

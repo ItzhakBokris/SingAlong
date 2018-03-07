@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
 import {connect} from 'react-redux';
 import {SongList} from '../../../components';
 
@@ -8,7 +8,6 @@ class Playlist extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
-                <Text>{this.props.group.pinCode}</Text>
                 <SongList
                     songs={this.props.groupSongs}
                     addedSongs={this.props.group.items}/>

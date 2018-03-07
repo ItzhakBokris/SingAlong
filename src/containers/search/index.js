@@ -95,7 +95,7 @@ class SearchSong extends Component {
                     {...Styles.searchBar}
                     {...this.getClearIconStyle()}
                     onChangeText={this.props.searchSongs.bind(this)}
-                    placeholder='Search...'/>
+                    placeholder='Search songs...'/>
 
                 {this.renderSelectedSongsCarousel()}
                 {this.renderSongList()}

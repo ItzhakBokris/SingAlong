@@ -1,18 +1,205 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image, Text, ScrollView, StatusBar} from 'react-native';
+import {View, StyleSheet, Image, Text, ScrollView, ActivityIndicator, LayoutAnimation} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
+import {ViewPager} from 'rn-viewpager';
 import {Colors} from '../../../styles';
 import {fetchSongLyrics} from '../../../store/lyrics/actions';
+import {changePlayedSong} from '../../../store/song/actions';
 
 class SongPage extends Component {
 
-    render() {
-        if (!this.props.lyrics) {
-            // TODO: show loader
-            return <View></View>
+    componentWillMount() {
+        if (this.props.group) {
+            this.goToSong(this.props, this.props.group.currentPlayed);
         }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.group) {
+            this.goToSong(nextProps, nextProps.group.currentPlayed);
+        }
+    }
+
+    nextSong() {
+        const {group, groupSongs, changePlayedSong} = this.props;
+        if (group.currentPlayed < groupSongs.length - 1) {
+            changePlayedSong(group, group.currentPlayed + 1);
+            this.goToSong(this.props, group.currentPlayed + 1);
+        }
+    }
+
+    previousSong() {
+        const {group, changePlayedSong} = this.props;
+        if (group.currentPlayed > 0) {
+            changePlayedSong(group, group.currentPlayed - 1);
+            this.goToSong(this.props, group.currentPlayed - 1);
+        }
+    }
+
+    goToSong(props, songPosition) {
+        if (props.groupSongs.length > songPosition) {
+            const song = props.groupSongs[songPosition];
+            const lyrics = props.lyricsMap[song.lyrics];
+            if (!lyrics || lyrics.error) {
+                props.fetchSongLyrics(song);
+            }
+        }
+        if (this.pager && this.pager.state.page !== songPosition) {
+            this.pager.setPage(songPosition);
+        }
+    }
+
+    getCoverImage() {
+        const {groupSongs, group} = this.props;
+        if (group && groupSongs.length > group.currentPlayed) {
+            const coverImage = groupSongs[group.currentPlayed].coverImage;
+            if (coverImage) {
+                return {uri: coverImage};
+            }
+        }
+        return require('../../../../assets/defaultCover.jpg')
+    }
+
+    renderLyrics(song) {
+        const lyrics = this.props.lyricsMap[song.lyrics];
+        if (!lyrics || !lyrics.text) {
+            return (
+                <ActivityIndicator style={styles.songLoader}/>
+            );
+        }
+        LayoutAnimation.easeInEaseOut();
+        return (
+            <ScrollView>
+                <Text style={styles.lyrics}>{lyrics.text}</Text>
+            </ScrollView>
+        );
+    }
+
+    renderSong(song) {
+        return (
+            <View key={song.key}>
+                <View style={styles.header}>
+                    <Text style={styles.songName} numberOfLines={2} ellipsizeMode='tail'>
+                        {song.name}
+                    </Text>
+
+                    <Text style={styles.artist} numberOfLines={1} ellipsizeMode='tail'>
+                        {song.artist}
+                    </Text>
+
+                    <View style={{flexDirection: 'row', marginTop: 10}}>
+                        <Text style={{color: Colors.primary}}>23 </Text>
+                        <Icon
+                            name='heart-outline'
+                            type='material-community'
+                            size={16}
+                            color={Colors.primary}/>
+
+                        <Text style={{color: Colors.primary, marginLeft: 10}}>78 </Text>
+                        <Icon
+                            type='simple-line-icon'
+                            name='microphone'
+                            size={16}
+                            color={Colors.primary}/>
+                    </View>
+                </View>
+
+                {this.renderLyrics(song)}
+            </View>
+        );
+    }
+
+    renderGroupSongsPager() {
+        if (this.props.groupSongs.length === 0 && this.props.isRequested) {
+            return (
+                <ActivityIndicator style={styles.songLoader}/>
+            );
+        }
+        return (
+            <ViewPager
+                keyboardShouldPersistTaps='handled'
+                style={styles.container}
+                ref={component => this.pager = component}
+                scrollEnabled={false}>
+
+                {this.props.groupSongs.map(this.renderSong.bind(this))}
+            </ViewPager>
+        );
+    }
+
+    renderSongControlButtons() {
+        return (
+            <View style={styles.songsControlButtons}>
+                {this.props.isAdmin && (<Icon
+                    name='step-backward'
+                    onPress={this.previousSong.bind(this)}
+                    {...songsControlButtonStyle}/>)}
+
+                <Icon
+                    name='play'
+                    {...songsControlButtonStyle}
+                    {...playButtonStyle}/>
+
+                {this.props.isAdmin && (<Icon
+                    name='step-forward'
+                    onPress={this.nextSong.bind(this)}
+                    {...songsControlButtonStyle}/>)}
+            </View>
+        );
+    }
+
+    renderSideButtons() {
+        return (
+            <View style={styles.sideButtons}>
+                <Icon
+                    name='account-circle'
+                    type='material-community'
+                    onPress={() => Actions.groupDetails()}
+                    containerStyle={styles.sideButtonContainer}
+                    {...iconButtonStyle}/>
+
+                <Icon
+                    name='music-note'
+                    type='material-community'
+                    containerStyle={styles.sideButtonContainer}
+                    {...iconButtonStyle}/>
+
+                <Icon
+                    name='format-size'
+                    type='material-community'
+                    containerStyle={styles.sideButtonContainer}
+                    {...iconButtonStyle}/>
+            </View>
+        );
+    }
+
+    renderFooterButtons() {
+        if (this.props.groupSongs.length > 0) {
+            return (
+                <View style={styles.footerButtons}>
+                    <Icon
+                        name='playlist-plus'
+                        type='material-community'
+                        onPress={() => Actions.addSongs()}
+                        containerStyle={styles.footerButtonContainer}
+                        {...iconButtonStyle}/>
+
+                    {this.renderSongControlButtons()}
+
+                    <Icon
+                        name='playlist-play'
+                        type='material-community'
+                        onPress={() => Actions.playlist()}
+                        containerStyle={styles.footerButtonContainer}
+                        {...iconButtonStyle}/>
+                </View>
+            );
+        }
+    }
+
+    render() {
         return (
             <View style={styles.container}>
                 <Image
@@ -20,90 +207,12 @@ class SongPage extends Component {
                     source={this.getCoverImage()}/>
 
                 <View style={styles.foreground}>
-                    <View style={styles.header}>
-                        <Text style={styles.songName} numberOfLines={2} ellipsizeMode='tail'>
-                            {this.props.song.name}
-                        </Text>
-
-                        <Text style={styles.artist} numberOfLines={1} ellipsizeMode='tail'>
-                            {this.props.song.artist}
-                        </Text>
-
-                        <View style={{flexDirection: 'row', marginTop: 10}}>
-                            <Text style={{color: Colors.primary}}>23 </Text>
-                            <Icon
-                                name='heart-outline'
-                                type='material-community'
-                                size={16}
-                                color={Colors.primary}/>
-
-                            <Text style={{color: Colors.primary, marginLeft: 10}}>78 </Text>
-                            <Icon
-                                type='simple-line-icon'
-                                name='microphone'
-                                size={16}
-                                color={Colors.primary}/>
-                        </View>
-                    </View>
-
-                    <ScrollView>
-                        <Text style={styles.lyrics}>{this.props.lyrics.text}</Text>
-                    </ScrollView>
-
-                    <View style={styles.sideButtons}>
-                        <Icon
-                            name='account-circle'
-                            type='material-community'
-                            onPress={() => Actions.groupDetails()}
-                            containerStyle={styles.sideButtonContainer}
-                            {...iconButtonStyle}/>
-
-                        <Icon
-                            name='music-note'
-                            type='material-community'
-                            containerStyle={styles.sideButtonContainer}
-                            {...iconButtonStyle}/>
-
-                        <Icon
-                            name='format-size'
-                            type='material-community'
-                            containerStyle={styles.sideButtonContainer}
-                            {...iconButtonStyle}/>
-                    </View>
-
-                    <View style={styles.footerButtons}>
-                        <Icon
-                            name='playlist-plus'
-                            type='material-community'
-                            onPress={() => Actions.addSongs()}
-                            containerStyle={styles.footerButtonContainer}
-                            {...iconButtonStyle}/>
-
-                        <Icon
-                            reverse
-                            name='play'
-                            type='font-awesome'
-                            size={28}
-                            iconStyle={{marginLeft: 5}}
-                            color={Colors.primary}/>
-
-                        <Icon
-                            name='playlist-play'
-                            type='material-community'
-                            onPress={() => Actions.playlist()}
-                            containerStyle={styles.footerButtonContainer}
-                            {...iconButtonStyle}/>
-                    </View>
+                    {this.renderGroupSongsPager()}
+                    {this.renderSideButtons()}
+                    {this.renderFooterButtons()}
                 </View>
             </View>
         );
-    }
-
-    getCoverImage() {
-        if (this.props.song.coverImage) {
-            return {uri: this.props.song.coverImage};
-        }
-        return require('../../../../assets/defaultCover.jpg')
     }
 }
 
@@ -120,6 +229,9 @@ const styles = StyleSheet.create({
     foreground: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)'
+    },
+    songLoader: {
+        marginTop: 50
     },
     header: {
         alignItems: 'center',
@@ -153,6 +265,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 10
     },
+    songsControlButtons: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
     sideButtons: {
         position: 'absolute',
         width: 60,
@@ -173,11 +289,25 @@ const iconButtonStyle = {
     color: 'white'
 };
 
-const mapStateToProps = (state) => {
-    const song = state.songData.groupSongs && state.songData.groupSongs[0];
-    const lyrics = song && state.lyricsData.lyricsMap[song.lyrics];
-    return {song, lyrics};
+const songsControlButtonStyle = {
+    reverse: true,
+    type: 'font-awesome',
+    size: 16,
+    color: Colors.primary
 };
 
-export default connect(mapStateToProps, {fetchSongLyrics})(SongPage);
+const playButtonStyle = {
+    size: 28,
+    containerStyle: {marginHorizontal: 12},
+    iconStyle: {marginLeft: 5}
+};
+
+const mapStateToProps = (state) => ({
+    ...state.groupData,
+    ...state.songData,
+    ...state.lyricsData,
+    isAdmin: state.groupData.group && state.userData.nickname === state.groupData.group.creator
+});
+
+export default connect(mapStateToProps, {fetchSongLyrics, changePlayedSong})(SongPage);
 

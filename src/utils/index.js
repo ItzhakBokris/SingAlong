@@ -10,7 +10,7 @@ export const snapshotToArray = (snapshot) => {
     return result;
 };
 
-export const showError = (message) => Toast.show(message, {
+export const showToastMessage = (message) => Toast.show(message, {
     duration: Toast.durations.SHORT,
     position: Toast.positions.BOTTOM,
     animation: true,

@@ -1,20 +1,11 @@
-import React, {Component} from "react";
-import {StatusBar, StyleSheet, View, UIManager, Platform, I18nManager} from 'react-native';
-import {Scene, Router} from 'react-native-router-flux';
+import React, {Component} from 'react';
+import {UIManager, Platform, I18nManager} from 'react-native';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
-import {Styles} from './styles';
 import rootReducer from './store/reducer';
-import EnterGroup from './containers/enterGroup';
-import CreateGroup from './containers/enterGroup/createGroup'
-import JoinGroup from './containers/enterGroup/joinGroup'
-import SongPage from './containers/group/song'
-import Playlist from './containers/group/playlist';
-import AddSongs from './containers/group/addSongs';
-import GroupDetails from './containers/group/details';
-import InviteMember from './containers/group/inviteMember';
+import Root from './containers/root';
 
 export default class App extends Component {
 
@@ -33,89 +24,20 @@ export default class App extends Component {
 
     componentWillMount() {
         firebase.initializeApp({
-            apiKey: "AIzaSyB36Axani6trF_NlA7ZgJdZpky6DT7199c",
-            authDomain: "singalong-6aaf5.firebaseapp.com",
-            databaseURL: "https://singalong-6aaf5.firebaseio.com",
-            projectId: "singalong-6aaf5",
-            storageBucket: "",
-            messagingSenderId: "1090194417681"
+            apiKey: 'AIzaSyB36Axani6trF_NlA7ZgJdZpky6DT7199c',
+            authDomain: 'singalong-6aaf5.firebaseapp.com',
+            databaseURL: 'https://singalong-6aaf5.firebaseio.com',
+            projectId: 'singalong-6aaf5',
+            storageBucket: '',
+            messagingSenderId: '1090194417681'
         });
     }
 
     render() {
         return (
             <Provider store={createStore(rootReducer, {}, applyMiddleware(ReduxThunk))}>
-                <View style={styles.container}>
-                    <StatusBar {...Styles.statusBar}/>
-
-                    <Router {...Styles.navBar}>
-                        <Scene hideNavBar key='root'>
-                            <Scene key='onBoarding'>
-                                <Scene
-                                    initial
-                                    hideNavBar
-                                    key='enterGroup'
-                                    component={EnterGroup}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    rightTitle='Next'
-                                    onRight={() => null}
-                                    key='createGroup'
-                                    title='New Group'
-                                    component={CreateGroup}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    rightTitle='Join'
-                                    onRight={() => null}
-                                    key='joinGroup'
-                                    component={JoinGroup}/>
-                            </Scene>
-
-                            <Scene key='main' modal>
-                                <Scene
-                                    initial={false}
-                                    hideNavBar
-                                    key='songPage'
-                                    component={SongPage}
-                                    {...Styles.translucentNavBar}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    key='playlist'
-                                    title='Group Playlist'
-                                    component={Playlist}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    rightTitle='Add'
-                                    onRight={() => null}
-                                    key='addSongs'
-                                    title='Add Songs'
-                                    component={AddSongs}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    key='groupDetails'
-                                    component={GroupDetails}/>
-
-                                <Scene
-                                    backTitle='Back'
-                                    key='inviteMember'
-                                    title='Invite Member'
-                                    component={InviteMember}/>
-                            </Scene>
-                        </Scene>
-                    </Router>
-                </View>
+                <Root />
             </Provider>
         );
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1
-    }
-});

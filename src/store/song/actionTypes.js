@@ -11,3 +11,7 @@ export const SONGS_SEARCH_SUCCESS = 'songs_search_success';
 export const SONGS_SEARCH_FAILURE = 'songs_search_failure';
 
 export const SONGS_CLEAR = 'songs_clear';
+
+export const PLAYED_SONG_CHANGE_REQUEST = 'played_song_change_request';
+export const PLAYED_SONG_CHANGE_SUCCESS = 'played_song_change_success';
+export const PLAYED_SONG_CHANGE_FAILURE = 'played_song_change_failure';

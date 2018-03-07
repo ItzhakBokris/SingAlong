@@ -8,7 +8,8 @@ import {
     GROUP_CREATE_FAILURE,
     GROUP_JOIN_REQUEST,
     GROUP_JOIN_SUCCESS,
-    GROUP_JOIN_FAILURE, GROUP_CLEAR
+    GROUP_JOIN_FAILURE,
+    GROUP_CLEAR
 } from './actionTypes';
 import {USER_NICKNAME_SET} from '../user/actionTypes';
 import {SONGS_CLEAR} from '../song/actionTypes';
@@ -28,22 +29,9 @@ export const fetchGroup = (groupKey) => {
     };
 };
 
-export const fetchGroupByPinCode = (pinCode) => {
-    return (dispatch) => {
-        dispatch({type: GROUP_FETCH_REQUEST});
-        firebase.database().ref('/groups').orderByChild('pinCode').equalTo(pinCode).on('value',
-            snapshot => {
-                const groups = snapshotToArray(snapshot);
-                if (groups.length > 0) {
-                    dispatch({type: GROUP_FETCH_SUCCESS, payload: groups[0]});
-                    dispatch(fetchGroupSongs(groups[0]));
-                } else {
-                    dispatch({type: GROUP_FETCH_FAILURE, payload: 'group not found'});
-                }
-            },
-            error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
-    };
-};
+export const fetchGroupByPinCode = (pinCode) => fetchGroupBy('pinCode', pinCode);
+
+export const fetchGroupByUid = (uid) => fetchGroupBy('uid', uid);
 
 export const createGroup = (name, creator, songs) => {
     return (dispatch) => {
@@ -53,9 +41,10 @@ export const createGroup = (name, creator, songs) => {
             .push({
                 name,
                 creator,
-                items: songs.map(song => ({song, member: creator})),
-                link: `https://group.singalong.com/${groupUid}`,
+                uid: groupUid,
                 pinCode: hashCode(groupUid),
+                items: songs.map(song => ({song, member: creator})),
+                currentPlayed: 0,
                 members: [creator]
             })
             .then(result => {
@@ -85,5 +74,22 @@ export const clearGroup = () => {
         dispatch({type: GROUP_CLEAR});
         dispatch({type: SONGS_CLEAR});
         dispatch({type: USER_NICKNAME_SET});
+    };
+};
+
+const fetchGroupBy = (property, value) => {
+    return (dispatch) => {
+        dispatch({type: GROUP_FETCH_REQUEST});
+        firebase.database().ref('/groups').orderByChild(property).equalTo(value).on('value',
+            snapshot => {
+                const groups = snapshotToArray(snapshot);
+                if (groups.length > 0) {
+                    dispatch({type: GROUP_FETCH_SUCCESS, payload: groups[0]});
+                    dispatch(fetchGroupSongs(groups[0]));
+                } else {
+                    dispatch({type: GROUP_FETCH_FAILURE, payload: 'group not found'});
+                }
+            },
+            error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
     };
 };

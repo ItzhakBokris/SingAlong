@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import SearchSong from '../../search'
 import {addSongsToGroup} from '../../../store/song/actions';
-import {showError} from '../../../utils';
+import {showToastMessage} from '../../../utils';
 
 class AddSongs extends Component {
 
@@ -18,7 +18,7 @@ class AddSongs extends Component {
             } else if (!nextProps.addError) {
                 Actions.pop();
             } else {
-                showError('Something went wrong please try again');
+                showToastMessage('Something went wrong please try again');
                 Actions.refresh({rightTitle: 'Add', onRight: this.onAddPress.bind(this)});
             }
         }
@@ -29,7 +29,7 @@ class AddSongs extends Component {
         if (selectedSongs.length > 0) {
             addSongsToGroup(group, nickname, selectedSongs.map(song => song.key));
         } else {
-            showError('Please select at lease one song');
+            showToastMessage('Please select at lease one song');
         }
     }
 

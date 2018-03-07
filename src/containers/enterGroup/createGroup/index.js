@@ -7,7 +7,7 @@ import {changeName, changeCreator, changeSongs} from '../../../store/groupCreati
 import {createGroup} from '../../../store/group/actions';
 import SearchSong from '../../search/index';
 import {EditGroupProperty} from '../editGroupProperty';
-import {showError} from '../../../utils/index';
+import {showToastMessage} from '../../../utils/index';
 
 class CreateGroup extends Component {
 
@@ -25,7 +25,7 @@ class CreateGroup extends Component {
             } else if (!nextProps.error) {
                 Actions.main();
             } else {
-                showError('Something went wrong please try again');
+                showToastMessage('Something went wrong please try again');
                 Actions.refresh({rightTitle: 'Open', onRight: this.onNextPress.bind(this)});
             }
         }
@@ -49,19 +49,19 @@ class CreateGroup extends Component {
         switch (step) {
             case CREATE_GROUP_STEPS.SELECT_GROUP_SONGS:
                 if (songs.length === 0) {
-                    return showError('Please select at least one song');
+                    return showToastMessage('Please select at least one song');
                 }
                 break;
 
             case CREATE_GROUP_STEPS.ENTER_GROUP_NAME:
                 if (!name) {
-                    return showError('Please provide a group name');
+                    return showToastMessage('Please provide a group name');
                 }
                 break;
 
             case CREATE_GROUP_STEPS.ENTER_NICKNAME:
                 if (!creator) {
-                    return showError('Please provide your nickname');
+                    return showToastMessage('Please provide your nickname');
                 }
         }
 
@@ -109,8 +109,8 @@ class CreateGroup extends Component {
                     ref={component => this.pager = component}
                     scrollEnabled={false}>
 
-                    <View>{this.renderStep(CREATE_GROUP_STEPS.SELECT_GROUP_SONGS)}</View>
                     <View>{this.renderStep(CREATE_GROUP_STEPS.ENTER_GROUP_NAME)}</View>
+                    <View>{this.renderStep(CREATE_GROUP_STEPS.SELECT_GROUP_SONGS)}</View>
                     <View>{this.renderStep(CREATE_GROUP_STEPS.ENTER_NICKNAME)}</View>
                 </ViewPager>
             </View>
@@ -119,8 +119,8 @@ class CreateGroup extends Component {
 }
 
 const CREATE_GROUP_STEPS = {
-    SELECT_GROUP_SONGS: 'select_group_songs',
     ENTER_GROUP_NAME: 'enter_group_name',
+    SELECT_GROUP_SONGS: 'select_group_songs',
     ENTER_NICKNAME: 'enter_nickname'
 };
 
