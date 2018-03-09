@@ -50,7 +50,7 @@ export class Loader extends Component {
             <Modal animationType="fade"
                    transparent={true}
                    visible={this.state.isModalVisible}
-                   onDismiss={this.props.onDismiss.bind(this)}
+                   onDismiss={this.props.onDismiss}
                    onRequestClose={this.onRequestClose.bind(this)}>
 
                 <TouchableWithoutFeedback onPress={this.onRequestClose.bind(this)}>

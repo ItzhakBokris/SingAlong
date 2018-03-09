@@ -40,7 +40,7 @@ export class EditGroupProperty extends Component {
                 <Input
                     value={this.props.value}
                     placeholder={this.props.placeholder}
-                    onChangeText={this.props.onChange.bind(this)}/>
+                    onChangeText={this.props.onChange}/>
 
                 {/*TODO: render group name*/}
                 {this.renderGroupSongs()}

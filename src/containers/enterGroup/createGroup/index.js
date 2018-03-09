@@ -86,7 +86,7 @@ class CreateGroup extends Component {
                         value={this.props.name}
                         placeholder='Enter group name'
                         groupSongs={this.props.songs}
-                        onChange={this.props.changeName.bind(this)}/>
+                        onChange={this.props.changeName}/>
                 );
 
             case CREATE_GROUP_STEPS.ENTER_NICKNAME:
@@ -95,7 +95,7 @@ class CreateGroup extends Component {
                         value={this.props.creator}
                         placeholder='Enter your nickname'
                         groupSongs={this.props.songs}
-                        onChange={this.props.changeCreator.bind(this)}/>
+                        onChange={this.props.changeCreator}/>
                 );
         }
     }

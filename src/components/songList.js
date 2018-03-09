@@ -72,7 +72,7 @@ export class SongList extends Component {
                     keyboardShouldPersistTaps='handled'
                     dataSource={this.songsDataSource}
                     renderRow={this.renderSongRow.bind(this)}
-                    onEndReached={this.props.onEndReached.bind(this)}/>
+                    onEndReached={this.props.onEndReached}/>
             </List>
         );
     }

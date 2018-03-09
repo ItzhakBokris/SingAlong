@@ -5,20 +5,38 @@ import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
 import {ViewPager} from 'rn-viewpager';
 import {Colors} from '../../../styles';
-import {fetchSongLyrics} from '../../../store/lyrics/actions';
+import {changeFontSizeScale, fetchFontSizeScale, fetchSongLyrics} from '../../../store/lyrics/actions';
 import {changePlayedSong} from '../../../store/song/actions';
+import {showToastMessage} from '../../../utils';
 
 class SongPage extends Component {
+
+    scrollers: { scrollView: Component, scrollOffset: number, maxScrollOffset: number }[] = [];
+
+    state = {
+        isAutoScrolling: false,
+        scrollFrameDeltaOffset: 1,
+        scrollFrameDeltaTime: 10
+    };
 
     componentWillMount() {
         if (this.props.group) {
             this.goToSong(this.props, this.props.group.currentPlayed);
         }
+        this.props.fetchFontSizeScale();
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.group) {
+    componentWillUpdate(nextProps, nextState) {
+        if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
             this.goToSong(nextProps, nextProps.group.currentPlayed);
+        }
+        if (nextProps.fontSizeScale !== this.props.fontSizeScale && this.props.fontSizeScale) {
+            showToastMessage(`Font size: ${nextProps.fontSizeScale * 100 | 0}%`, 1000)
+            const scroller = this.getCurrentScroller();
+            scroller.maxScrollOffset = null;
+        }
+        if (nextState.isAutoScrolling && !this.state.isAutoScrolling) {
+            this.animateScrollFrame();
         }
     }
 
@@ -38,6 +56,50 @@ class SongPage extends Component {
         }
     }
 
+    playSong() {
+        this.setState({isAutoScrolling: !this.state.isAutoScrolling});
+    }
+
+    animateScrollFrame() {
+        const startFrameTime = new Date().getTime();
+        const scroller = this.getCurrentScroller();
+        scroller.scrollOffset += this.state.scrollFrameDeltaOffset;
+        scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
+        const frameTime = new Date().getTime() - startFrameTime;
+        setTimeout(() => this.state.isAutoScrolling && this.animateScrollFrame(),
+            this.state.scrollFrameDeltaTime - frameTime);
+    }
+
+    onScrollViewReady(scrollView, position) {
+        if (!this.scrollers[position]) {
+            this.scrollers[position] = {scrollOffset: 0};
+        }
+        this.scrollers[position].scrollView = scrollView;
+    }
+
+    getCurrentScroller() {
+        return this.scrollers[this.props.group.currentPlayed];
+    }
+
+    onScroll(event) {
+        const scroller = this.getCurrentScroller();
+        const offsetY = event.nativeEvent.contentOffset.y;
+        if (scroller.maxScrollOffset == null) {
+            const {contentSize, layoutMeasurement} = event.nativeEvent;
+            scroller.maxScrollOffset = contentSize.height - layoutMeasurement.height;
+        }
+        if (offsetY !== scroller.scrollOffset) {
+            // user scroll.
+            scroller.scrollOffset = offsetY;
+            this.setState({isAutoScrolling: false})
+        } else if (offsetY > scroller.maxScrollOffset) {
+            // auto-scroll overflow.
+            scroller.scrollOffset = scroller.maxScrollOffset;
+            scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
+            this.setState({isAutoScrolling: false})
+        }
+    }
+
     goToSong(props, songPosition) {
         if (props.groupSongs.length > songPosition) {
             const song = props.groupSongs[songPosition];
@@ -48,6 +110,7 @@ class SongPage extends Component {
         }
         if (this.pager && this.pager.state.page !== songPosition) {
             this.pager.setPage(songPosition);
+            this.setState({isAutoScrolling: false});
         }
     }
 
@@ -62,7 +125,7 @@ class SongPage extends Component {
         return require('../../../../assets/defaultCover.jpg')
     }
 
-    renderLyrics(song) {
+    renderLyrics(song, position) {
         const lyrics = this.props.lyricsMap[song.lyrics];
         if (!lyrics || !lyrics.text) {
             return (
@@ -71,13 +134,19 @@ class SongPage extends Component {
         }
         LayoutAnimation.easeInEaseOut();
         return (
-            <ScrollView>
-                <Text style={styles.lyrics}>{lyrics.text}</Text>
+            <ScrollView
+                ref={component => this.onScrollViewReady(component, position)}
+                scrollEventThrottle={this.state.scrollFrameDeltaTime}
+                onScroll={this.onScroll.bind(this)}>
+
+                <Text style={[styles.lyrics, getFixedLyricsStyle(this.props.fontSizeScale)]}>
+                    {lyrics.text}
+                </Text>
             </ScrollView>
         );
     }
 
-    renderSong(song) {
+    renderSong(song, position) {
         return (
             <View key={song.key}>
                 <View style={styles.header}>
@@ -106,7 +175,7 @@ class SongPage extends Component {
                     </View>
                 </View>
 
-                {this.renderLyrics(song)}
+                {this.renderLyrics(song, position)}
             </View>
         );
     }
@@ -138,9 +207,9 @@ class SongPage extends Component {
                     {...songsControlButtonStyle}/>)}
 
                 <Icon
-                    name='play'
+                    onPress={this.playSong.bind(this)}
                     {...songsControlButtonStyle}
-                    {...playButtonStyle}/>
+                    {...getPlayPauseButtonStyle(!this.state.isAutoScrolling)}/>
 
                 {this.props.isAdmin && (<Icon
                     name='step-forward'
@@ -169,6 +238,7 @@ class SongPage extends Component {
                 <Icon
                     name='format-size'
                     type='material-community'
+                    onPress={() => this.props.changeFontSizeScale(this.props.fontSizeScale)}
                     containerStyle={styles.sideButtonContainer}
                     {...iconButtonStyle}/>
             </View>
@@ -251,13 +321,10 @@ const styles = StyleSheet.create({
         marginTop: 4
     },
     lyrics: {
-        alignSelf: 'center',
         paddingVertical: 10,
-        paddingHorizontal: 60,
+        paddingHorizontal: 50,
         color: Colors.lighterGrey,
-        textAlign: 'center',
-        lineHeight: 34,
-        fontSize: 21
+        textAlign: 'center'
     },
     footerButtons: {
         flexDirection: 'row',
@@ -296,10 +363,18 @@ const songsControlButtonStyle = {
     color: Colors.primary
 };
 
-const playButtonStyle = {
+const getPlayPauseButtonStyle = (isPlay) => ({
+    name: isPlay ? 'play' : 'pause',
     size: 28,
     containerStyle: {marginHorizontal: 12},
-    iconStyle: {marginLeft: 5}
+    iconStyle: isPlay ? {marginLeft: 5} : null
+});
+
+const getFixedLyricsStyle = (fontSizeScale) => {
+    return ({
+        fontSize: 21 * fontSizeScale,
+        lineHeight: 34 * fontSizeScale
+    });
 };
 
 const mapStateToProps = (state) => ({
@@ -309,5 +384,12 @@ const mapStateToProps = (state) => ({
     isAdmin: state.groupData.group && state.userData.nickname === state.groupData.group.creator
 });
 
-export default connect(mapStateToProps, {fetchSongLyrics, changePlayedSong})(SongPage);
+const actions = {
+    fetchSongLyrics,
+    changePlayedSong,
+    fetchFontSizeScale,
+    changeFontSizeScale
+};
+
+export default connect(mapStateToProps, actions)(SongPage);
 

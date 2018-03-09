@@ -17,8 +17,8 @@ export default class App extends Component {
         }
         try {
             I18nManager.allowRTL(false);
-        } catch (e) {
-            console.log(e);
+        } catch (error) {
+            console.log(error.message);
         }
     }
 

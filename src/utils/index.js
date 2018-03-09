@@ -1,4 +1,5 @@
 import Toast from 'react-native-root-toast';
+export * from './appStorage';
 
 export const snapshotToObject = (snapshot) => ({...snapshot.val(), key: snapshot.key});
 
@@ -10,8 +11,8 @@ export const snapshotToArray = (snapshot) => {
     return result;
 };
 
-export const showToastMessage = (message) => Toast.show(message, {
-    duration: Toast.durations.SHORT,
+export const showToastMessage = (message, duration) => Toast.show(message, {
+    duration: duration || Toast.durations.SHORT,
     position: Toast.positions.BOTTOM,
     animation: true,
     hideOnPress: true

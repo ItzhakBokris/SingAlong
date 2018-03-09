@@ -74,7 +74,7 @@ export default class Root extends Component {
                             <Scene
                                 backTitle='Back'
                                 key='playlist'
-                                title='Group Playlist'
+                                title='Playlist'
                                 component={Playlist}/>
 
                             <Scene

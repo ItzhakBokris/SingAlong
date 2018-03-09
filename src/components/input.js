@@ -33,7 +33,7 @@ export class Input extends Component {
                         placeholderTextColor={Colors.lightGrey}
                         placeholder={this.props.placeholder}
                         value={this.props.value}
-                        onChangeText={this.props.onChangeText.bind(this)}/>
+                        onChangeText={this.props.onChangeText}/>
                 </View>
             </View>
         );

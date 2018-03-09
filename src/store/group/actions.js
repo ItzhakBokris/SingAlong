@@ -43,9 +43,9 @@ export const createGroup = (name, creator, songs) => {
                 creator,
                 uid: groupUid,
                 pinCode: hashCode(groupUid),
-                items: songs.map(song => ({song, member: creator})),
                 currentPlayed: 0,
-                members: [creator]
+                members: [creator],
+                items: songs.map(song => ({song, member: creator}))
             })
             .then(result => {
                 dispatch({type: GROUP_CREATE_SUCCESS});
