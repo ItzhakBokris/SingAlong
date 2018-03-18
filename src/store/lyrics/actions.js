@@ -7,7 +7,6 @@ import {
 } from './actionTypes';
 import {AppStorage, snapshotToObject} from '../../utils';
 
-const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9];
 const KEY_FONT_SIZE_SCALE = 'key_font_size_scale';
 
 export const fetchSongLyrics = (song) => {
@@ -24,9 +23,7 @@ export const fetchFontSizeScale = () => {
         value => dispatch({type: LYRICS_FONT_SIZE_SCALE_FETCH, payload: parseFloat(value || 1)}));
 };
 
-export const changeFontSizeScale = (currentScale) => {
-    const scaleIndex = (1 + FONT_SIZE_SCALES.indexOf(currentScale)) % FONT_SIZE_SCALES.length;
-    const fontSizeScale = FONT_SIZE_SCALES[scaleIndex];
-    AppStorage.set(KEY_FONT_SIZE_SCALE, fontSizeScale);
-    return {type: LYRICS_FONT_SIZE_SCALE_FETCH, payload: fontSizeScale};
+export const changeFontSizeScale = (scale) => {
+    AppStorage.set(KEY_FONT_SIZE_SCALE, scale);
+    return {type: LYRICS_FONT_SIZE_SCALE_FETCH, payload: scale};
 };

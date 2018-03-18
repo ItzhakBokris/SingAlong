@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image, Text, ScrollView, ActivityIndicator, LayoutAnimation} from 'react-native';
+import {
+    View, StyleSheet, Image, Text, ScrollView, ActivityIndicator, LayoutAnimation, Dimensions,
+    Platform
+} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
@@ -9,14 +12,17 @@ import {changeFontSizeScale, fetchFontSizeScale, fetchSongLyrics} from '../../..
 import {changePlayedSong} from '../../../store/song/actions';
 import {showToastMessage} from '../../../utils';
 
+const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 1 : 0.5;
+const AUTO_SCROLL_DELTA_TIME = 10;
+const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9];
+
 class SongPage extends Component {
 
     scrollers: { scrollView: Component, scrollOffset: number, maxScrollOffset: number }[] = [];
 
     state = {
-        isAutoScrolling: false,
-        scrollFrameDeltaOffset: 1,
-        scrollFrameDeltaTime: 10
+        isAutoScroll: false,
+        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET
     };
 
     componentWillMount() {
@@ -26,16 +32,18 @@ class SongPage extends Component {
         this.props.fetchFontSizeScale();
     }
 
-    componentWillUpdate(nextProps, nextState) {
+    componentWillReceiveProps(nextProps) {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
             this.goToSong(nextProps, nextProps.group.currentPlayed);
         }
         if (nextProps.fontSizeScale !== this.props.fontSizeScale && this.props.fontSizeScale) {
-            showToastMessage(`Font size: ${nextProps.fontSizeScale * 100 | 0}%`, 1000)
-            const scroller = this.getCurrentScroller();
-            scroller.maxScrollOffset = null;
+            this.getCurrentScroller().maxScrollOffset = null;
+            this.setState({autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET * nextProps.fontSizeScale});
         }
-        if (nextState.isAutoScrolling && !this.state.isAutoScrolling) {
+    }
+
+    componentWillUpdate(nextProps, nextState) {
+        if (nextState.isAutoScroll && !this.state.isAutoScroll) {
             this.animateScrollFrame();
         }
     }
@@ -56,18 +64,13 @@ class SongPage extends Component {
         }
     }
 
-    playSong() {
-        this.setState({isAutoScrolling: !this.state.isAutoScrolling});
-    }
-
     animateScrollFrame() {
         const startFrameTime = new Date().getTime();
         const scroller = this.getCurrentScroller();
-        scroller.scrollOffset += this.state.scrollFrameDeltaOffset;
+        scroller.scrollOffset += this.state.autoScrollDeltaOffset;
         scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
         const frameTime = new Date().getTime() - startFrameTime;
-        setTimeout(() => this.state.isAutoScrolling && this.animateScrollFrame(),
-            this.state.scrollFrameDeltaTime - frameTime);
+        setTimeout(() => this.state.isAutoScroll && this.animateScrollFrame(), AUTO_SCROLL_DELTA_TIME - frameTime);
     }
 
     onScrollViewReady(scrollView, position) {
@@ -83,21 +86,24 @@ class SongPage extends Component {
 
     onScroll(event) {
         const scroller = this.getCurrentScroller();
-        const offsetY = event.nativeEvent.contentOffset.y;
         if (scroller.maxScrollOffset == null) {
             const {contentSize, layoutMeasurement} = event.nativeEvent;
             scroller.maxScrollOffset = contentSize.height - layoutMeasurement.height;
         }
-        if (offsetY !== scroller.scrollOffset) {
-            // user scroll.
-            scroller.scrollOffset = offsetY;
-            this.setState({isAutoScrolling: false})
-        } else if (offsetY > scroller.maxScrollOffset) {
-            // auto-scroll overflow.
+        scroller.scrollOffset = event.nativeEvent.contentOffset.y;
+        if (scroller.scrollOffset > scroller.maxScrollOffset) {
             scroller.scrollOffset = scroller.maxScrollOffset;
             scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
-            this.setState({isAutoScrolling: false})
+            this.setState({isAutoScroll: false})
         }
+    }
+
+    onUserStartScroll() {
+        this.setState({isAutoScroll: false});
+    }
+
+    playSong() {
+        this.setState({isAutoScroll: !this.state.isAutoScroll});
     }
 
     goToSong(props, songPosition) {
@@ -110,8 +116,15 @@ class SongPage extends Component {
         }
         if (this.pager && this.pager.state.page !== songPosition) {
             this.pager.setPage(songPosition);
-            this.setState({isAutoScrolling: false});
+            this.setState({isAutoScroll: false});
         }
+    }
+
+    changeFontSizeScale() {
+        const scaleIndex = (1 + FONT_SIZE_SCALES.indexOf(this.props.fontSizeScale)) % FONT_SIZE_SCALES.length;
+        const fontSizeScale = FONT_SIZE_SCALES[scaleIndex];
+        this.props.changeFontSizeScale(fontSizeScale);
+        setTimeout(() => showToastMessage(`Font size: ${fontSizeScale * 100 | 0}%`, 1000));
     }
 
     getCoverImage() {
@@ -136,7 +149,8 @@ class SongPage extends Component {
         return (
             <ScrollView
                 ref={component => this.onScrollViewReady(component, position)}
-                scrollEventThrottle={this.state.scrollFrameDeltaTime}
+                scrollEventThrottle={AUTO_SCROLL_DELTA_TIME}
+                onScrollBeginDrag={this.onUserStartScroll.bind(this)}
                 onScroll={this.onScroll.bind(this)}>
 
                 <Text style={[styles.lyrics, getFixedLyricsStyle(this.props.fontSizeScale)]}>
@@ -209,7 +223,7 @@ class SongPage extends Component {
                 <Icon
                     onPress={this.playSong.bind(this)}
                     {...songsControlButtonStyle}
-                    {...getPlayPauseButtonStyle(!this.state.isAutoScrolling)}/>
+                    {...getPlayPauseButtonStyle(!this.state.isAutoScroll)}/>
 
                 {this.props.isAdmin && (<Icon
                     name='step-forward'
@@ -238,7 +252,7 @@ class SongPage extends Component {
                 <Icon
                     name='format-size'
                     type='material-community'
-                    onPress={() => this.props.changeFontSizeScale(this.props.fontSizeScale)}
+                    onPress={this.changeFontSizeScale.bind(this)}
                     containerStyle={styles.sideButtonContainer}
                     {...iconButtonStyle}/>
             </View>

@@ -5,25 +5,24 @@ admin.initializeApp(functions.config().firebase);
 
 exports.addSong = functions.https.onRequest((request, response) => {
     if (request && request.body) {
-        if (!request.body.hasOwnProperty('name')) {
+        const name = request.body['name'].trim();
+        const artist = request.body['artist'].trim();
+        const image = request.body['image'].trim();
+        const coverImage = request.body['coverImage'].trim();
+        const lyrics = request.body['lyrics'].trim();
+        if (!name) {
             response.status(500).send({err: 'Missing name'});
         }
-        if (!request.body.hasOwnProperty('artist')) {
+        if (!artist) {
             response.status(500).send({err: 'Missing artist'});
         }
-        if (!request.body.hasOwnProperty('lyrics')) {
+        if (!lyrics) {
             response.status(500).send({err: 'Missing lyrics'});
         }
-        return admin.database().ref('/lyricses').push({text: request.body['lyrics']})
+        return admin.database().ref('/lyricses').push({text: lyrics})
             .then(result => {
-                const song = {
-                    name: request.body['name'],
-                    artist: request.body['artist'],
-                    image: request.body['image'],
-                    coverImage: request.body['coverImage'],
-                    lyrics: result.key
-                };
-                return admin.database().ref('/songs').push(song)
+                return admin.database().ref('/songs')
+                    .push({name, artist, image, coverImage, lyrics: result.key})
                     .then(() => response.status(201).send(result.key))
                     .catch((error) => response.status(500).send(error));
             })
