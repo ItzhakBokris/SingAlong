@@ -1,8 +1,5 @@
 import React, {Component} from 'react';
-import {
-    View, StyleSheet, Image, Text, ScrollView, ActivityIndicator, LayoutAnimation, Dimensions,
-    Platform
-} from 'react-native';
+import {View, StyleSheet, Image, Text, ActivityIndicator, LayoutAnimation} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
@@ -11,18 +8,15 @@ import {Colors} from '../../../styles';
 import {changeFontSizeScale, fetchFontSizeScale, fetchSongLyrics} from '../../../store/lyrics/actions';
 import {changePlayedSong} from '../../../store/song/actions';
 import {showToastMessage} from '../../../utils';
+import {SongLyrics} from '../../../components';
 
-const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 1 : 0.5;
-const AUTO_SCROLL_DELTA_TIME = 10;
 const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9];
 
 class SongPage extends Component {
 
-    scrollers: { scrollView: Component, scrollOffset: number, maxScrollOffset: number }[] = [];
-
     state = {
         isAutoScroll: false,
-        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET
+        showChords: false
     };
 
     componentWillMount() {
@@ -35,16 +29,6 @@ class SongPage extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
             this.goToSong(nextProps, nextProps.group.currentPlayed);
-        }
-        if (nextProps.fontSizeScale !== this.props.fontSizeScale && this.props.fontSizeScale) {
-            this.getCurrentScroller().maxScrollOffset = null;
-            this.setState({autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET * nextProps.fontSizeScale});
-        }
-    }
-
-    componentWillUpdate(nextProps, nextState) {
-        if (nextState.isAutoScroll && !this.state.isAutoScroll) {
-            this.animateScrollFrame();
         }
     }
 
@@ -64,41 +48,7 @@ class SongPage extends Component {
         }
     }
 
-    animateScrollFrame() {
-        const startFrameTime = new Date().getTime();
-        const scroller = this.getCurrentScroller();
-        scroller.scrollOffset += this.state.autoScrollDeltaOffset;
-        scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
-        const frameTime = new Date().getTime() - startFrameTime;
-        setTimeout(() => this.state.isAutoScroll && this.animateScrollFrame(), AUTO_SCROLL_DELTA_TIME - frameTime);
-    }
-
-    onScrollViewReady(scrollView, position) {
-        if (!this.scrollers[position]) {
-            this.scrollers[position] = {scrollOffset: 0};
-        }
-        this.scrollers[position].scrollView = scrollView;
-    }
-
-    getCurrentScroller() {
-        return this.scrollers[this.props.group.currentPlayed];
-    }
-
-    onScroll(event) {
-        const scroller = this.getCurrentScroller();
-        if (scroller.maxScrollOffset == null) {
-            const {contentSize, layoutMeasurement} = event.nativeEvent;
-            scroller.maxScrollOffset = contentSize.height - layoutMeasurement.height;
-        }
-        scroller.scrollOffset = event.nativeEvent.contentOffset.y;
-        if (scroller.scrollOffset > scroller.maxScrollOffset) {
-            scroller.scrollOffset = scroller.maxScrollOffset;
-            scroller.scrollView.scrollTo({y: scroller.scrollOffset, animated: false});
-            this.setState({isAutoScroll: false})
-        }
-    }
-
-    onUserStartScroll() {
+    onLyricsPress() {
         this.setState({isAutoScroll: false});
     }
 
@@ -120,6 +70,10 @@ class SongPage extends Component {
         }
     }
 
+    showHideChords() {
+        this.setState({showChords: !this.state.showChords});
+    }
+
     changeFontSizeScale() {
         const scaleIndex = (1 + FONT_SIZE_SCALES.indexOf(this.props.fontSizeScale)) % FONT_SIZE_SCALES.length;
         const fontSizeScale = FONT_SIZE_SCALES[scaleIndex];
@@ -128,17 +82,17 @@ class SongPage extends Component {
     }
 
     getCoverImage() {
-        const {groupSongs, group} = this.props;
-        if (group && groupSongs.length > group.currentPlayed) {
-            const coverImage = groupSongs[group.currentPlayed].coverImage;
-            if (coverImage) {
-                return {uri: coverImage};
-            }
-        }
+        // const {groupSongs, group} = this.props;
+        // if (group && groupSongs.length > group.currentPlayed) {
+        //     const coverImage = groupSongs[group.currentPlayed].coverImage;
+        //     if (coverImage) {
+        //         return {uri: coverImage};
+        //     }
+        // }
         return require('../../../../assets/defaultCover.jpg')
     }
 
-    renderLyrics(song, position) {
+    renderLyrics(song) {
         const lyrics = this.props.lyricsMap[song.lyrics];
         if (!lyrics || !lyrics.text) {
             return (
@@ -147,20 +101,18 @@ class SongPage extends Component {
         }
         LayoutAnimation.easeInEaseOut();
         return (
-            <ScrollView
-                ref={component => this.onScrollViewReady(component, position)}
-                scrollEventThrottle={AUTO_SCROLL_DELTA_TIME}
-                onScrollBeginDrag={this.onUserStartScroll.bind(this)}
-                onScroll={this.onScroll.bind(this)}>
-
-                <Text style={[styles.lyrics, getFixedLyricsStyle(this.props.fontSizeScale)]}>
-                    {lyrics.text}
-                </Text>
-            </ScrollView>
+            <SongLyrics
+                lyricsText={lyrics.text}
+                chordsColor={Colors.blue}
+                padding={lyricsWebViewPadding}
+                autoScroll={this.state.isAutoScroll}
+                fontSizeScale={this.props.fontSizeScale}
+                onPress={this.onLyricsPress.bind(this)}
+                showChords={this.state.showChords}/>
         );
     }
 
-    renderSong(song, position) {
+    renderSong(song) {
         return (
             <View key={song.key}>
                 <View style={styles.header}>
@@ -189,7 +141,7 @@ class SongPage extends Component {
                     </View>
                 </View>
 
-                {this.renderLyrics(song, position)}
+                {this.renderLyrics(song)}
             </View>
         );
     }
@@ -244,8 +196,9 @@ class SongPage extends Component {
                     {...iconButtonStyle}/>
 
                 <Icon
-                    name='music-note'
+                    name={'music-note' + (this.state.showChords ? '-off' : '')}
                     type='material-community'
+                    onPress={this.showHideChords.bind(this)}
                     containerStyle={styles.sideButtonContainer}
                     {...iconButtonStyle}/>
 
@@ -334,12 +287,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 4
     },
-    lyrics: {
-        paddingVertical: 10,
-        paddingHorizontal: 50,
-        color: Colors.lighterGrey,
-        textAlign: 'center'
-    },
     footerButtons: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -384,12 +331,7 @@ const getPlayPauseButtonStyle = (isPlay) => ({
     iconStyle: isPlay ? {marginLeft: 5} : null
 });
 
-const getFixedLyricsStyle = (fontSizeScale) => {
-    return ({
-        fontSize: 21 * fontSizeScale,
-        lineHeight: 34 * fontSizeScale
-    });
-};
+const lyricsWebViewPadding = {vertical: 10, horizontal: 50};
 
 const mapStateToProps = (state) => ({
     ...state.groupData,
