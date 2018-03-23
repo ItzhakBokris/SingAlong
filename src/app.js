@@ -41,6 +41,7 @@ export default class App extends Component {
                     {/*<SongLyrics*/}
                         {/*showChords*/}
                         {/*lyricsText={lyrics}*/}
+                        {/*autoScroll*/}
                         {/*padding={{horizontal: 50, vertical: 50}}/>*/}
                 {/*</View>*/}
                 <Root/>
@@ -49,21 +50,43 @@ export default class App extends Component {
     }
 }
 
-const lyrics = 'ה[A]ייתי מחובר אלייך כמו גוף אל ה[Bm]נשמה\n' +
-    '[F#m]סוחב כאב ומנסה להתמודד [Em]עם הדממה\n' +
-    '[A]הזמן עובר לאט חושב עלייך כל [Bm]דקה\n' +
-    '[F#m]איך הלכת לי לאיבוד אני מותש מ[Em]מחשבה\n' +
-    '[Bm]בלילות אני מסתובב,[G] הולך ברח[Bm]וב מוציא כא[G]ב\n' +
-    '[F#]מחפש את הת[Em]קווה, קורא ל[Bm]אל בתפ[G]ילה\n' +
-    'פזמון:\n' +
-    'אל תלכ[A]י לי, אל תלכי ל[Bm]י\n' +
-    '[F#]אין לי כוח להמשיך אולי תשאר[Em]י \n' +
-    '[A]אל תלכי לי, אל ת[Bm]לכי לי\n' +
-    '[F#]אין לי כוח להמשיך אולי תשארי[Em] \n' +
-    '[A]ראיתי קסם בתוכך שעליו לא[Bm] אוותר\n' +
-    '[Bm]גם אם יפלו שמיים א[F#m]ו אטבע בים[Em] סוער\n' +
-    '[A]גם אם אראה אותך חובקת סתם אדם[Bm] אחר\n' +
-    '[Bm]אוכל מיד לסלוח ב[F#m]ואי אלי ונס[Em]תדר\n' +
-    'בלילות אני מסתובב, הולך ברחוב מוציא כאב\n' +
-    'מחפש את התקווה, קורא לאל בתפילה\n' +
-    'פזמון';
+const lyrics = 'I\'m s[F#m]tanding on the bridge\n' +
+    'I\'m w[D5]aiting in the dark\n' +
+    'I t[F#m]hought that you\'d be here by n[D5]ow\n' +
+    'There\'s n[F#m]othing but the rain\n' +
+    'No f[D5]ootsteps on the ground\n' +
+    'I\'m l[F#m]istening but there\'s no s[D5]ound\n' +
+    '[E]Isn\'t anyone trying to f[D]ind me\n' +
+    '[E]Won\'t somebody come take me h[D]ome\n' +
+    'Chorus:\n' +
+    '[D]It\'s a [A]damn [Bm]cold [D]night\n' +
+    '[D]Trying to figure [A]out [Bm]this [D]life\n' +
+    '[D]Won\'t you [A]  take me by the h[Bm]and take me s[D]omewhere new\n' +
+    '[D]I don\'t k[F#m]now who you [E]are but [D]I\n' +
+    '[D]I\'m with [F#m]you  [D] \n' +
+    '[D]I\'m with [F#m]you  [D] \n' +
+    'I\'m l[F#m]ooking for a place\n' +
+    'I\'m s[D5]earching for a face\n' +
+    'Is [F#m]anybody here I kn[D5]ow\n' +
+    'Cause n[F#m]othing\'s going right\n' +
+    'And [D5]everything\'s a mess\n' +
+    'And [F#m]no one likes to be al[D5]one\n' +
+    '[E]Isn\'t anyone trying to f[D]ind me\n' +
+    '[E]Won\'t somebody come take me h[D]ome\n' +
+    'Repeat Chorus\n' +
+    'yeah y[D]eah...\n' +
+    'Oh,[E] why is everything so conf[Bm]using\n' +
+    '[E]Maybe I\'m just out of my m[Bm]ind\n' +
+    'Yeah y[E]eah yeah yeah yeah\n' +
+    'Y[D]eah yeah yeah yeah\n' +
+    'Y[C#m]eah  [E] \n' +
+    'Repeat Chorus\n' +
+    '[A]Take me by the han[Bm]d take me som[D]ewhere new\n' +
+    '[D]I don\'t k[F#m]now who you [E]are but [D]I\n' +
+    '[D]I\'m with y[A]ou[Bm]   [D] \n' +
+    '[D]I\'m with y[A]ou[Bm]   [D] \n' +
+    '[A]Take me by the han[Bm]d take me som[D]ewhere new\n' +
+    '[D]I don\'t k[F#m]now who you [E]are but [D]I\n' +
+    '[D]I\'m with [F#m]you  [D] \n' +
+    '[D]I\'m with [F#m]you  [D] \n' +
+    '[D]I\'m with y[A]ou\n';

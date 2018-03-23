@@ -49,7 +49,9 @@ class SongPage extends Component {
     }
 
     onLyricsPress() {
-        this.setState({isAutoScroll: false});
+        if (this.state.isAutoScroll) {
+            this.setState({isAutoScroll: false});
+        }
     }
 
     playSong() {
@@ -157,6 +159,7 @@ class SongPage extends Component {
                 keyboardShouldPersistTaps='handled'
                 style={styles.container}
                 ref={component => this.pager = component}
+                horizontalScroll={false}
                 scrollEnabled={false}>
 
                 {this.props.groupSongs.map(this.renderSong.bind(this))}

@@ -3,9 +3,9 @@ import {Platform, StyleSheet, WebView} from 'react-native';
 import PropTypes from 'prop-types';
 import {Colors} from '../styles';
 
-const AUTO_SCROLL_DELTA_OFFSET = 1;
-const AUTO_SCROLL_DELTA_TIME = Platform.OS === 'ios' ? 10 : 20;
-const MessageTypes = {ScrollY: 'scrollY', UserPressed: 'userPressed'};
+const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 0.25 : 0.125;
+const AUTO_SCROLL_DELTA_TIME = 10;
+const MessageTypes = {ScrollTop: 'scrollTop', UserPressed: 'userPressed'};
 
 export class SongLyrics extends Component {
 
@@ -31,11 +31,10 @@ export class SongLyrics extends Component {
     state = {
         fixedLyrics: '',
         scrollOffset: 0,
-        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET,
-        autoScrollDeltaTime: AUTO_SCROLL_DELTA_TIME
+        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET
     };
 
-    scrollY = 0;
+    scrollTop = 0;
 
     componentWillMount() {
         this.updateLyrics(this.props);
@@ -46,55 +45,82 @@ export class SongLyrics extends Component {
             this.updateLyrics(nextProps);
         }
         if (nextProps.fontSizeScale !== this.props.fontSizeScale && this.props.fontSizeScale) {
-            this.setState({
-                autoScrollDeltaOffset: Math.max(AUTO_SCROLL_DELTA_OFFSET * nextProps.fontSizeScale, AUTO_SCROLL_DELTA_OFFSET),
-                autoScrollDeltaTime: Math.max(AUTO_SCROLL_DELTA_TIME / nextProps.fontSizeScale, AUTO_SCROLL_DELTA_TIME)
-            });
+            this.setState({autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET * nextProps.fontSizeScale});
         }
     }
 
     updateLyrics(props) {
         this.setState({
             fixedLyrics: props.lyricsText
-                .replace(/[  ]/g, ' ')
+                .replace(/[  ]+/g, ' ')
                 .replace(/(\[)([^\]]*)(\])/g, props.showChords ? '<chord>$2</chord>' : '')
                 .replace(/([^\s]*<chord>[^\s]*)/g, '<span>$1</span>')
-                .replace(/[\n]/g, '<br>')
+                .replace(/[\n\r]+/g, '<br>')
                 .trim()
         });
     }
 
     createLyricsHtml() {
         const {fontSizeScale, showChords, padding, autoScroll} = this.props;
-        const {autoScrollDeltaOffset, autoScrollDeltaTime, fixedLyrics} = this.state;
+        const {autoScrollDeltaOffset, fixedLyrics} = this.state;
         // language=HTML
         return `
             <html>
                 <head>
+                    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
                     <script>
-                        document.addEventListener("scroll", onScroll, false);
-
-                        let userTouch = false;
+                        let lyricsContent = null;
+                        let offsetTop = 0;   
+                        let userPressed = false;
+                        let userScrolled = false;
+                        window.scrollTo(0, ${this.scrollTop});
+                        function postEvent(name, value) {
+                            try {
+                                window.postMessage(JSON.stringify({[name]: value}));
+                            }
+                            catch (error) {}
+                        }
+                        function onTouchStart() {
+                            //document.getElementById('aaa').innerText += '-pressed-';
+                            // userPressed = true;
+                            // lyricsContent.style.transform = 'translateY(0px)'
+                            // window.scrollBy(0, offsetTop);
+                            // offsetTop = 0;
+                            postEvent('${MessageTypes.UserPressed}', true);
+                        }
                         function onScroll() {
-                            window.postMessage('{"${MessageTypes.ScrollY}": ' + window.scrollY + '}');
-                            if (userTouch) {
-                               window.postMessage('{"${MessageTypes.UserPressed}": true}'); 
-                               userTouch = false;
+                            //document.getElementById('aaa').innerText += '-scrolled-';
+                            if (offsetTop > 0) {
+                                document.getElementById('aaa').innerText = 'cleared';
+
+                                lyricsContent.style.transform = 'translateY(0px)'
+                                window.scrollBy(0, Math.ceil(offsetTop));
+                                offsetTop = 0; 
+                            }
+                            document.getElementById('aaa').innerText = (/cleared/.test(document.getElementById('aaa').innerText) ? 'cleared ' : '') + window.scrollY;
+                            postEvent('${MessageTypes.ScrollTop}', window.scrollY);
+                        }
+                        function animateScrollFrame() { 
+                            if (window.scrollY + offsetTop + window.innerHeight < document.body.scrollHeight) {
+                                const startFrameTime = new Date().getTime();
+                                offsetTop += ${autoScrollDeltaOffset};
+                                lyricsContent.style.transform = 'translateY(-' + offsetTop + 'px)';
+                                postEvent('${MessageTypes.ScrollTop}', offsetTop + window.scrollY);
+                                const frameTime = new Date().getTime() - startFrameTime;
+                                setTimeout(animateScrollFrame, ${AUTO_SCROLL_DELTA_TIME} - frameTime); 
                             }
                         }
-                        function onTouchStart() { userTouch = true; }
-                        function animateScrollFrame() { 
-                            const startFrameTime = new Date().getTime();
-                            window.scrollBy(0, ${autoScrollDeltaOffset});
-                            const frameTime = new Date().getTime() - startFrameTime;
-                            setTimeout(animateScrollFrame, ${autoScrollDeltaTime} - frameTime); 
-                        }
-                        window.scrollTo(0, ${this.scrollY});
-                        if (${autoScroll}) {
-                            animateScrollFrame();  
-                        }
+                        setTimeout(() => {
+                            lyricsContent = document.getElementById('lyricsContent');
+                            if (${autoScroll}) {
+                                animateScrollFrame();  
+                            }
+                        });
                     </script>
                     <style>
+                        * {
+                           -webkit-user-select: none;
+                        }
                         body {
                             direction: ${/[א-ת]+/g.test(fixedLyrics) ? 'rtl' : 'ltr'};
                             padding: ${Math.max(padding.vertical, showChords ? 10 : 0)}px ${padding.horizontal}px;
@@ -103,7 +129,7 @@ export class SongLyrics extends Component {
                             color: ${Colors.lighterGrey}; 
                             text-align: center; 
                             font-size: ${20 * fontSizeScale}px;
-                            line-height: ${34 * fontSizeScale * (showChords ? 1.25 : 1)}px; 
+                            line-height: ${40 * fontSizeScale}px; 
                         }
                         span {
                             white-space: nowrap;
@@ -111,8 +137,8 @@ export class SongLyrics extends Component {
                         chord {
                             position: relative;
                             color: ${this.props.chordsColor};
-                            top: -1.2em;
-                            font-size: 0.8em;
+                            top: ${-24 * fontSizeScale}px;
+                            font-size: ${16 * fontSizeScale}px;
                             font-weight: bold;
                             display: inline-block;
                             width: 0;
@@ -120,18 +146,22 @@ export class SongLyrics extends Component {
                         }
                     </style>
                 </head>
-                <body onScroll="onScroll()" onclick="onTouchStart()">
-                    <div ontouchstart="onTouchStart()">${fixedLyrics}</div>
+                <body onScroll='onScroll()' onclick='onTouchStart()'>
+                    <div id="aaa" style="position:fixed;z-index:10;background-color:red;left:0;top:0;width:100px;color:black;font-size:12px;text-wrap:normal;height:100px"></div>
+                    <div id='lyricsContent' ontouchstart='onTouchStart()'>${fixedLyrics}</div>
                 </body>
-                <script>window.scrollTo(0, ${this.scrollY})</script>
+                <script>
+                    window.scrollTo(0, ${this.scrollTop});
+                </script>
             </html>
         `;
     }
 
     onWebViewMessage(event) {
         const messageData = JSON.parse(event.nativeEvent.data);
-        if (messageData[MessageTypes.ScrollY]) {
-            this.scrollY = messageData[MessageTypes.ScrollY];
+        if (messageData[MessageTypes.ScrollTop]) {
+            this.scrollTop = messageData[MessageTypes.ScrollTop];
+            console.log("scrollTop: " + this.scrollTop);
         }
         if (messageData[MessageTypes.UserPressed]) {
             this.props.onPress();
@@ -143,9 +173,11 @@ export class SongLyrics extends Component {
             <WebView
                 source={{html: this.createLyricsHtml()}}
                 scrollEnabled={true}
-                scalesPageToFit={false}
+                scalesPageToFit={Platform.OS !== 'ios'}
                 onMessage={this.onWebViewMessage.bind(this)}
-                style={[styles.lyricsWebView]}/>
+                injectJavaScript={'window.scrollTo(0, ' + this.scrollTop + ')'}
+                injectedJavaScript={'window.scrollTo(0, ' + this.scrollTop + ')'}
+                style={styles.lyricsWebView}/>
         );
     }
 }
