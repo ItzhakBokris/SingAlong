@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, WebView} from 'react-native';
+import {Platform, ScrollView, StyleSheet, Dimensions, View, Text} from 'react-native';
 import PropTypes from 'prop-types';
 import {Colors} from '../styles';
 
-const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 0.25 : 0.125;
+const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 0.5 : 0.25;
 const AUTO_SCROLL_DELTA_TIME = 10;
-const MessageTypes = {ScrollTop: 'scrollTop', UserPressed: 'userPressed'};
 
 export class SongLyrics extends Component {
 
@@ -14,176 +13,205 @@ export class SongLyrics extends Component {
         showChords: PropTypes.bool,
         fontSizeScale: PropTypes.number,
         chordsColor: PropTypes.string,
-        padding: PropTypes.shape({horizontal: PropTypes.number, vertical: PropTypes.number}),
+        containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
         autoScroll: PropTypes.bool,
-        onPress: PropTypes.func
+        onUserScroll: PropTypes.func,
+        onEndReached: PropTypes.func
     };
 
     static defaultProps = {
         showChords: false,
         fontSizeScale: 1,
         chordsColor: 'dodgerblue',
-        padding: {horizontal: 0, vertical: 0},
+        containerStyle: {},
         autoScroll: false,
-        onPress: () => null
-    };
-
-    state = {
-        fixedLyrics: '',
-        scrollOffset: 0,
-        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET
+        onUserScroll: () => null,
+        onEndReached: () => null
     };
 
     scrollTop = 0;
+    autoScrollDeltaOffset = AUTO_SCROLL_DELTA_OFFSET;
+    lyricsScrollViewHeight = Dimensions.get('window').height;
+    lyricsContainerHeight = this.lyricsScrollViewHeight;
+    isRtlLyrics = false;
+    lyricsParts = [];
 
     componentWillMount() {
-        this.updateLyrics(this.props);
+        this.fetchLyricsParts(this.props.lyricsText);
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.lyricsText !== this.props.lyricsText || nextProps.showChords !== this.props.showChords) {
-            this.updateLyrics(nextProps);
+        if (nextProps.fontSizeScale !== this.props.fontSizeScale) {
+            this.updateScrolling(nextProps.fontSizeScale);
         }
-        if (nextProps.fontSizeScale !== this.props.fontSizeScale && this.props.fontSizeScale) {
-            this.setState({autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET * nextProps.fontSizeScale});
+        if (nextProps.lyricsText !== this.props.lyricsText) {
+            this.fetchLyricsParts(nextProps.lyricsText);
+        }
+        if (nextProps.autoScroll && !this.props.autoScroll) {
+            this.animateScrollFrame();
         }
     }
 
-    updateLyrics(props) {
-        this.setState({
-            fixedLyrics: props.lyricsText
-                .replace(/[  ]+/g, ' ')
-                .replace(/(\[)([^\]]*)(\])/g, props.showChords ? '<chord>$2</chord>' : '')
-                .replace(/([^\s]*<chord>[^\s]*)/g, '<span>$1</span>')
-                .replace(/[\n\r]+/g, '<br>')
-                .trim()
+    updateScrolling(newFontSizeScale) {
+        this.scrollTop = this.scrollTop * newFontSizeScale / this.props.fontSizeScale;
+        this.autoScrollDeltaOffset = AUTO_SCROLL_DELTA_OFFSET * newFontSizeScale;
+    }
+
+    fetchLyricsParts(lyricsText) {
+        this.isRtlLyrics = /[א-ת]/g.test(lyricsText);
+        const space = this.isRtlLyrics ? ' ' : ' ';
+        const sentences = lyricsText.split(/[\n\r]+/);
+        const chordRegex = /(\[)([^\]]*)(\])/g;
+        this.lyricsParts = sentences.map(sentence => {
+            const words = sentence.split(/[  ]+/);
+            return words.map((word, wordIndex) => {
+                const wordParts = [];
+                let position = 0;
+                let regexResult;
+                while (regexResult = chordRegex.exec(word)) {
+                    if (regexResult.index > 0) {
+                        const text = word.substring(position, regexResult.index);
+                        wordParts.push({type: 'text', text});
+                        position = regexResult.index;
+                    }
+                    const text = regexResult[0].substring(1, regexResult[0].length - 1);
+                    wordParts.push({type: 'chord', text});
+                    position += regexResult[0].length;
+                }
+                if (position < word.length) {
+                    const text = word.substring(position, word.length);
+                    wordParts.push({type: 'text', text});
+                }
+                const textParts = wordParts.filter(wordPart => wordPart.type === 'text');
+                if (textParts.length > 0) {
+                    textParts[textParts.length - 1].text += (wordIndex < words.length - 1 ? space : '');
+                }
+                return wordParts;
+            });
         });
     }
 
-    createLyricsHtml() {
-        const {fontSizeScale, showChords, padding, autoScroll} = this.props;
-        const {autoScrollDeltaOffset, fixedLyrics} = this.state;
-        // language=HTML
-        return `
-            <html>
-                <head>
-                    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-                    <script>
-                        let lyricsContent = null;
-                        let offsetTop = 0;   
-                        let userPressed = false;
-                        let userScrolled = false;
-                        window.scrollTo(0, ${this.scrollTop});
-                        function postEvent(name, value) {
-                            try {
-                                window.postMessage(JSON.stringify({[name]: value}));
-                            }
-                            catch (error) {}
-                        }
-                        function onTouchStart() {
-                            //document.getElementById('aaa').innerText += '-pressed-';
-                            // userPressed = true;
-                            // lyricsContent.style.transform = 'translateY(0px)'
-                            // window.scrollBy(0, offsetTop);
-                            // offsetTop = 0;
-                            postEvent('${MessageTypes.UserPressed}', true);
-                        }
-                        function onScroll() {
-                            //document.getElementById('aaa').innerText += '-scrolled-';
-                            if (offsetTop > 0) {
-                                document.getElementById('aaa').innerText = 'cleared';
-
-                                lyricsContent.style.transform = 'translateY(0px)'
-                                window.scrollBy(0, Math.ceil(offsetTop));
-                                offsetTop = 0; 
-                            }
-                            document.getElementById('aaa').innerText = (/cleared/.test(document.getElementById('aaa').innerText) ? 'cleared ' : '') + window.scrollY;
-                            postEvent('${MessageTypes.ScrollTop}', window.scrollY);
-                        }
-                        function animateScrollFrame() { 
-                            if (window.scrollY + offsetTop + window.innerHeight < document.body.scrollHeight) {
-                                const startFrameTime = new Date().getTime();
-                                offsetTop += ${autoScrollDeltaOffset};
-                                lyricsContent.style.transform = 'translateY(-' + offsetTop + 'px)';
-                                postEvent('${MessageTypes.ScrollTop}', offsetTop + window.scrollY);
-                                const frameTime = new Date().getTime() - startFrameTime;
-                                setTimeout(animateScrollFrame, ${AUTO_SCROLL_DELTA_TIME} - frameTime); 
-                            }
-                        }
-                        setTimeout(() => {
-                            lyricsContent = document.getElementById('lyricsContent');
-                            if (${autoScroll}) {
-                                animateScrollFrame();  
-                            }
-                        });
-                    </script>
-                    <style>
-                        * {
-                           -webkit-user-select: none;
-                        }
-                        body {
-                            direction: ${/[א-ת]+/g.test(fixedLyrics) ? 'rtl' : 'ltr'};
-                            padding: ${Math.max(padding.vertical, showChords ? 10 : 0)}px ${padding.horizontal}px;
-                            font-family: Arial, sans-serif;
-                            margin: 0;
-                            color: ${Colors.lighterGrey}; 
-                            text-align: center; 
-                            font-size: ${20 * fontSizeScale}px;
-                            line-height: ${40 * fontSizeScale}px; 
-                        }
-                        span {
-                            white-space: nowrap;
-                        }
-                        chord {
-                            position: relative;
-                            color: ${this.props.chordsColor};
-                            top: ${-24 * fontSizeScale}px;
-                            font-size: ${16 * fontSizeScale}px;
-                            font-weight: bold;
-                            display: inline-block;
-                            width: 0;
-                            overflow: visible;
-                        }
-                    </style>
-                </head>
-                <body onScroll='onScroll()' onclick='onTouchStart()'>
-                    <div id="aaa" style="position:fixed;z-index:10;background-color:red;left:0;top:0;width:100px;color:black;font-size:12px;text-wrap:normal;height:100px"></div>
-                    <div id='lyricsContent' ontouchstart='onTouchStart()'>${fixedLyrics}</div>
-                </body>
-                <script>
-                    window.scrollTo(0, ${this.scrollTop});
-                </script>
-            </html>
-        `;
+    animateScrollFrame() {
+        const startFrameTime = new Date().getTime();
+        if (this.scrollView && this.lyricsContainerHeight > this.lyricsScrollViewHeight) {
+            const scrollTop = this.scrollTop + this.autoScrollDeltaOffset;
+            if (scrollTop + this.lyricsScrollViewHeight <= this.lyricsContainerHeight) {
+                this.scrollView.scrollTo({y: scrollTop, animated: false});
+            } else {
+                this.props.onEndReached();
+            }
+        }
+        const frameTime = new Date().getTime() - startFrameTime;
+        const timeout = AUTO_SCROLL_DELTA_TIME - frameTime;
+        setTimeout(() => this.props.autoScroll && this.animateScrollFrame(), timeout);
     }
 
-    onWebViewMessage(event) {
-        const messageData = JSON.parse(event.nativeEvent.data);
-        if (messageData[MessageTypes.ScrollTop]) {
-            this.scrollTop = messageData[MessageTypes.ScrollTop];
-            console.log("scrollTop: " + this.scrollTop);
-        }
-        if (messageData[MessageTypes.UserPressed]) {
-            this.props.onPress();
+    getSentenceStyle() {
+        return [styles.sentence, this.isRtlLyrics && styles.rtlDirection];
+    }
+
+    getChordContainerStyle() {
+        return this.isRtlLyrics && styles.rtlDirection;
+    }
+
+    getWordWithChordsStyle() {
+        return [styles.wordWithChords, this.isRtlLyrics && styles.rtlDirection];
+    }
+
+    getWordStyle() {
+        return [styles.word, {
+            fontSize: 20 * this.props.fontSizeScale,
+            lineHeight: 45 * this.props.fontSizeScale
+        }];
+    }
+
+    getChordStyle() {
+        return [styles.chord, {
+            fontSize: 14 * this.props.fontSizeScale,
+            top: -3 * this.props.fontSizeScale
+        }];
+    }
+
+    createLyricsElements() {
+        return this.lyricsParts.map((sentence, sentenceIndex) => (
+            <View key={sentenceIndex} style={this.getSentenceStyle()}>
+                {sentence.map((word, wordIndex) => {
+                    const parts = this.props.showChords ? word : word.filter(part => part.type === 'text');
+                    const wordPartViews = parts.map((part, partIndex) => part.type === 'text' ? (
+                        <Text key={wordIndex + partIndex} style={this.getWordStyle()}>
+                            {part.text}
+                        </Text>
+                    ) : (
+                        <View key={wordIndex + partIndex} style={this.getChordContainerStyle()}>
+                            <Text style={this.getChordStyle()}>{part.text}</Text>
+                        </View>
+                    ));
+                    if (wordPartViews.length === 1) {
+                        return wordPartViews[0];
+                    }
+                    return (
+                        <View key={wordIndex} style={this.getWordWithChordsStyle()}>
+                            {wordPartViews}
+                        </View>
+                    );
+                })}
+            </View>
+        ));
+    }
+
+    onScroll(event) {
+        this.scrollTop = event.nativeEvent.contentOffset.y;
+    }
+
+    onScrollViewLayout(event) {
+        this.lyricsScrollViewHeight = event.nativeEvent.layout.height;
+    }
+
+    onLyricsContainerLayout(event) {
+        this.lyricsContainerHeight = event.nativeEvent.layout.height;
+        if (this.scrollView) {
+            this.scrollView.scrollTo({y: this.scrollTop, animated: false});
         }
     }
 
     render() {
         return (
-            <WebView
-                source={{html: this.createLyricsHtml()}}
-                scrollEnabled={true}
-                scalesPageToFit={Platform.OS !== 'ios'}
-                onMessage={this.onWebViewMessage.bind(this)}
-                injectJavaScript={'window.scrollTo(0, ' + this.scrollTop + ')'}
-                injectedJavaScript={'window.scrollTo(0, ' + this.scrollTop + ')'}
-                style={styles.lyricsWebView}/>
+            <ScrollView
+                onScroll={this.onScroll.bind(this)}
+                onLayout={this.onScrollViewLayout.bind(this)}
+                ref={component => this.scrollView = component}
+                onScrollBeginDrag={this.props.onUserScroll}
+                scrollEventThrottle={AUTO_SCROLL_DELTA_TIME}>
+
+                <View
+                    onLayout={this.onLyricsContainerLayout.bind(this)}
+                    style={this.props.containerStyle}>
+
+                    {this.createLyricsElements(this.props.lyricsText)}
+                </View>
+            </ScrollView>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    lyricsWebView: {
-        backgroundColor: 'transparent'
+    sentence: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center'
+    },
+    word: {
+        color: Colors.lighterGrey
+    },
+    wordWithChords: {
+        flexDirection: 'row'
+    },
+    chord: {
+        color: 'dodgerblue',
+        position: 'absolute',
+        fontWeight: 'bold'
+    },
+    rtlDirection: {
+        flexDirection: 'row-reverse'
     }
 });

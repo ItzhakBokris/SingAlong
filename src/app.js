@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {UIManager, Platform, I18nManager, ScrollView, View} from 'react-native';
+import {UIManager, Platform, I18nManager, View, Text} from 'react-native';
 import {createStore, applyMiddleware} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
@@ -37,13 +37,16 @@ export default class App extends Component {
     render() {
         return (
             <Provider store={createStore(rootReducer, {}, applyMiddleware(ReduxThunk))}>
-                {/*<View style={{flex:1}}>*/}
+                {/*<View style={{flex: 1, backgroundColor: '#555'}}>*/}
                     {/*<SongLyrics*/}
                         {/*showChords*/}
                         {/*lyricsText={lyrics}*/}
                         {/*autoScroll*/}
-                        {/*padding={{horizontal: 50, vertical: 50}}/>*/}
+                        {/*containerStyle={{paddingVertical: 30, paddingHorizontal: 50}}/>*/}
                 {/*</View>*/}
+
+
+
                 <Root/>
             </Provider>
         );
@@ -90,3 +93,37 @@ const lyrics = 'I\'m s[F#m]tanding on the bridge\n' +
     '[D]I\'m with [F#m]you  [D] \n' +
     '[D]I\'m with [F#m]you  [D] \n' +
     '[D]I\'m with y[A]ou\n';
+
+
+const lyrics2 = '[Am]מה אני עושה פה בל[Dm]עדייך\n' +
+    '[E]אין לי כלום מלבד הא[Am]הבה\n' +
+    '[F]כל הערב מחייג א[Dm]לייך\n' +
+    '[Dm]את לא עו[E]נה\n' +
+    '[Am]הסתגרתי לי לבד[Dm] בחדר\n' +
+    '[E]כמו משוגע הולך מפה [Am]לשם\n' +
+    'החי[F]ים איבדו כיוון [Dm]וסדר\n' +
+    'אי[Dm]ן לי עני[E]ין\n' +
+    'פזמון:\n' +
+    'אלו[C]היי אלוהיי אלו[G]הים\n' +
+    'א[Dm]ני לא יודע [Am]לאן\n' +
+    'אלו[Am]היי אלוהיי אלו[G]הים\n' +
+    '[Dm]אם תתן לי קצת ז[E]מן\n' +
+    'האורות כבים בחלונות\n' +
+    'אנשים חולמים על המחר\n' +
+    'לא יכול לישון רוצה לבכות\n' +
+    'עצוב לי וקר\n' +
+    'ופתאום צלצול ואת בדלת\n' +
+    'מתנצל, אומר , מתנצל\n' +
+    'את אהובתי ואין אחרת\n' +
+    'לילה ערפל\n' +
+    'פזמון\n' +
+    'רק א[C]יתך אל[Dm]ך לשוטט[G] בעול[C]ם\n' +
+    'לא[Em] יודע אי[F]ך\n' +
+    'לא י[Dm]ודע לא[E]ן\n' +
+    'אנג[C]ן לך[Dm] שיר\n' +
+    'אז[G]מזם פ[C]זמון\n' +
+    '[Em]את אה[F]בתי\n' +
+    'עד [Dm]יומי הא[E]חרון\n' +
+    'פזמון\n';
+
+

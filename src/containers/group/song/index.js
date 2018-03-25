@@ -48,13 +48,13 @@ class SongPage extends Component {
         }
     }
 
-    onLyricsPress() {
+    stopAutoScroll() {
         if (this.state.isAutoScroll) {
             this.setState({isAutoScroll: false});
         }
     }
 
-    playSong() {
+    toggleAutoScroll() {
         this.setState({isAutoScroll: !this.state.isAutoScroll});
     }
 
@@ -106,11 +106,12 @@ class SongPage extends Component {
             <SongLyrics
                 lyricsText={lyrics.text}
                 chordsColor={Colors.blue}
-                padding={lyricsWebViewPadding}
                 autoScroll={this.state.isAutoScroll}
                 fontSizeScale={this.props.fontSizeScale}
-                onPress={this.onLyricsPress.bind(this)}
-                showChords={this.state.showChords}/>
+                showChords={this.state.showChords}
+                containerStyle={styles.lyricsContainer}
+                onUserScroll={this.stopAutoScroll.bind(this)}
+                onEndReached={this.stopAutoScroll.bind(this)}/>
         );
     }
 
@@ -176,7 +177,7 @@ class SongPage extends Component {
                     {...songsControlButtonStyle}/>)}
 
                 <Icon
-                    onPress={this.playSong.bind(this)}
+                    onPress={this.toggleAutoScroll.bind(this)}
                     {...songsControlButtonStyle}
                     {...getPlayPauseButtonStyle(!this.state.isAutoScroll)}/>
 
@@ -290,6 +291,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 4
     },
+    lyricsContainer: {
+        paddingVertical: 10,
+        paddingHorizontal: 50
+    },
     footerButtons: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -333,8 +338,6 @@ const getPlayPauseButtonStyle = (isPlay) => ({
     containerStyle: {marginHorizontal: 12},
     iconStyle: isPlay ? {marginLeft: 5} : null
 });
-
-const lyricsWebViewPadding = {vertical: 10, horizontal: 50};
 
 const mapStateToProps = (state) => ({
     ...state.groupData,

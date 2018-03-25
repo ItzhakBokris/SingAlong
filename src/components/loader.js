@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
     },
     modalFrame: {
         padding: 20,
-
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
