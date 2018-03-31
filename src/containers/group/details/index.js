@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import {ListView, StyleSheet, View} from 'react-native';
+import {ScrollView, StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
-import {List, ListItem, Text} from 'react-native-elements';
+import {ListItem, Text} from 'react-native-elements';
 import {Colors, Styles} from '../../../styles';
 import {Section} from '../../../components';
+import {leaveGroup} from '../../../store/group/actions';
 
 class GroupDetails extends Component {
 
@@ -19,67 +20,77 @@ class GroupDetails extends Component {
     updateMembersDataSource(props) {
         if (props.group) {
             Actions.refresh({title: props.group.name});
-            const dataSource = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-            this.membersDataSource = dataSource.cloneWithRows(props.group.members);
         }
     }
 
-    getRightTitle(member) {
-        return member === this.props.group.creator ? 'Group Admin' : '';
+    leaveGroup() {
+        this.props.leaveGroup(this.props.group, this.props.nickname);
+        Actions.onBoarding({type: 'reset'});
     }
 
-    renderMemberRow(member) {
+    renderMember(member, isAdmin) {
         return (
             <ListItem
                 key={member}
                 title={member}
                 onPress={() => null}
-                rightTitle={this.getRightTitle(member)}
+                rightTitle={isAdmin ? 'Group Admin' : ''}
                 rightTitleStyle={styles.listItemRightTitle}
                 leftIcon={{name: 'user-circle', size: 32, type: 'font-awesome'}}
                 {...Styles.listActionItem}/>
         );
     }
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <Section firstChild>
-                    <ListItem
-                        title='Edit profile'
-                        onPress={() => null}
-                        leftIcon={{name: 'account-edit', type: 'material-community'}}
-                        {...Styles.listActionItem}/>
-
-                    <ListItem
-                        title='Invite member'
-                        onPress={() => Actions.inviteMember()}
-                        leftIcon={{name: 'person-add'}}
-                        {...Styles.listActionItem}/>
-                </Section>
-
-                <Section containerStyle={styles.membersContainer}>
+    renderMembersSection() {
+        const {members, admin} = this.props.group;
+        if (members && admin) {
+            return (
+                <Section>
                     <Text style={styles.membersCountTitle}>
                         {this.props.group.members.length} Members
                     </Text>
-
-                    <List containerStyle={styles.listContainer}>
-                        <ListView
-                            enableEmptySections
-                            dataSource={this.membersDataSource}
-                            renderRow={this.renderMemberRow.bind(this)}/>
-                    </List>
+                    {members.map(member => this.renderMember(member, member === admin))}
                 </Section>
-            </View>
+            );
+        }
+    }
+
+    render() {
+        return (
+            <ScrollView>
+                <View style={styles.container}>
+                    <Section>
+                        <ListItem
+                            title='Edit profile'
+                            onPress={() => null}
+                            leftIcon={{name: 'account-edit', type: 'material-community'}}
+                            {...Styles.listActionItem}/>
+
+                        <ListItem
+                            title='Invite member'
+                            onPress={() => Actions.inviteMember()}
+                            leftIcon={{name: 'person-add'}}
+                            {...Styles.listActionItem}/>
+                    </Section>
+
+                    {this.renderMembersSection()}
+
+                    <Section>
+                        <ListItem
+                            title='Leave group'
+                            onPress={this.leaveGroup.bind(this)}
+                            leftIcon={{name: 'logout', type: 'material-community', color: Colors.danger}}
+                            {...Styles.listActionItem}
+                            titleStyle={{...Styles.listActionItem.titleStyle, color: Colors.danger}}/>
+                    </Section>
+                </View>
+            </ScrollView>
         );
     }
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
-    },
-    membersContainer: {
         flex: 1
     },
     membersCountTitle: {
@@ -89,11 +100,6 @@ const styles = StyleSheet.create({
         paddingLeft: 15,
         paddingBottom: 10
     },
-    listContainer: {
-        borderTopWidth: 0,
-        marginTop: 0,
-        flex: 1
-    },
     listItemRightTitle: {
         color: Colors.blue,
         fontWeight: 'bold',
@@ -101,6 +107,6 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({...state.groupData});
+const mapStateToProps = (state) => ({...state.groupData, ...state.userData});
 
-export default connect(mapStateToProps)(GroupDetails);
+export default connect(mapStateToProps, {leaveGroup})(GroupDetails);

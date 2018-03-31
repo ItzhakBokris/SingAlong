@@ -22,7 +22,7 @@ exports.addSong = functions.https.onRequest((request, response) => {
         return admin.database().ref('/lyricses').push({text: lyrics})
             .then(result => {
                 return admin.database().ref('/songs')
-                    .push({name, artist, lyrics: result.key})
+                    .push({name, artist, lyrics: result.key, viewsCount: 0, likesCount: 0})
                     .then(() => response.status(201).send(result.key))
                     .catch((error) => response.status(500).send(error));
             })

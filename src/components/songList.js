@@ -51,6 +51,7 @@ export class SongList extends Component {
                 disabled={this.props.disableIfAdded && addedSong != null}
                 rightTitle={rightTitle}
                 titleStyle={styles.listItemTitle}
+                subtitleStyle={styles.listItemSubtitleStyle}
                 rightIcon={this.renderSongRightIcon(song)}
                 avatar={<Avatar medium source={{uri: song.image}}/>}
                 onPress={() => this.props.onSongPress(song)}/>
@@ -85,6 +86,10 @@ const styles = StyleSheet.create({
         flex: 1
     },
     listItemTitle: {
+        textAlign: 'left',
         fontSize: FontSizes.header
+    },
+    listItemSubtitleStyle: {
+        textAlign: 'left',
     }
 });

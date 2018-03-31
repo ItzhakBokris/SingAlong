@@ -13,7 +13,7 @@ class JoinGroup extends Component {
         Actions.refresh({
             onRight: this.onNextPress.bind(this),
             onBack: () => {
-                this.props.clearGroup();
+                this.props.clearGroup(this.props.group);
                 Actions.pop();
             },
             title: 'Join to ' + this.props.group.name
@@ -25,7 +25,7 @@ class JoinGroup extends Component {
             if (nextProps.isRequested) {
                 Actions.refresh({rightTitle: 'Loading', onRight: () => null})
             } else if (!nextProps.error) {
-                Actions.main();
+                Actions.main({type: 'reset'});
             } else {
                 showToastMessage('Something went wrong please try again');
                 Actions.refresh({rightTitle: 'Join', onRight: this.onNextPress.bind(this)});
@@ -34,12 +34,13 @@ class JoinGroup extends Component {
     }
 
     onNextPress() {
-        if (!this.props.nickname) {
+        const {nickname, group, joinToGroup} = this.props;
+        if (!nickname) {
             showToastMessage('Please provide your nickname');
-        } else if (this.props.group.members.indexOf(this.props.nickname) >= 0) {
+        } else if (group.members && group.members.indexOf(nickname) >= 0) {
             showToastMessage('A user with this nickname already exists');
         } else {
-            this.props.joinToGroup(this.props.group, this.props.nickname);
+            joinToGroup(group, nickname);
         }
     }
 

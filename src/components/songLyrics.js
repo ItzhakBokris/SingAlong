@@ -59,7 +59,7 @@ export class SongLyrics extends Component {
 
     fetchLyricsParts(lyricsText) {
         this.isRtlLyrics = /[א-ת]/g.test(lyricsText);
-        const space = this.isRtlLyrics ? ' ' : ' ';
+        const space = this.isRtlLyrics && Platform.OS === 'ios' ? ' ' : ' ';
         const sentences = lyricsText.split(/[\n\r]+/);
         const chordRegex = /(\[)([^\]]*)(\])/g;
         this.lyricsParts = sentences.map(sentence => {
@@ -128,33 +128,41 @@ export class SongLyrics extends Component {
     getChordStyle() {
         return [styles.chord, {
             fontSize: 14 * this.props.fontSizeScale,
-            top: -3 * this.props.fontSizeScale
+            top: -3 * this.props.fontSizeScale,
+            color: this.props.showChords ? this.props.chordsColor : 'transparent'
         }];
     }
 
-    createLyricsElements() {
+    createLyricsWordParts(word, wordIndex) {
+        return word.map((wordPart, partIndex) => wordPart.type === 'text' ? (
+            <Text key={wordIndex + partIndex} style={this.getWordStyle()}>
+                {wordPart.text}
+            </Text>
+        ) : (
+            <View key={wordIndex + partIndex} style={this.getChordContainerStyle()}>
+                <Text style={this.getChordStyle()}>{wordPart.text}</Text>
+            </View>
+        ));
+    }
+
+    createLyricsWords(sentence) {
+        return sentence.map((word, wordIndex) => {
+            const wordPartViews = this.createLyricsWordParts(word, wordIndex);
+            if (wordPartViews.length === 1) {
+                return wordPartViews[0];
+            }
+            return (
+                <View key={wordIndex} style={this.getWordWithChordsStyle()}>
+                    {wordPartViews}
+                </View>
+            );
+        });
+    }
+
+    createLyricsSentences() {
         return this.lyricsParts.map((sentence, sentenceIndex) => (
             <View key={sentenceIndex} style={this.getSentenceStyle()}>
-                {sentence.map((word, wordIndex) => {
-                    const parts = this.props.showChords ? word : word.filter(part => part.type === 'text');
-                    const wordPartViews = parts.map((part, partIndex) => part.type === 'text' ? (
-                        <Text key={wordIndex + partIndex} style={this.getWordStyle()}>
-                            {part.text}
-                        </Text>
-                    ) : (
-                        <View key={wordIndex + partIndex} style={this.getChordContainerStyle()}>
-                            <Text style={this.getChordStyle()}>{part.text}</Text>
-                        </View>
-                    ));
-                    if (wordPartViews.length === 1) {
-                        return wordPartViews[0];
-                    }
-                    return (
-                        <View key={wordIndex} style={this.getWordWithChordsStyle()}>
-                            {wordPartViews}
-                        </View>
-                    );
-                })}
+                {this.createLyricsWords(sentence)}
             </View>
         ));
     }
@@ -183,11 +191,8 @@ export class SongLyrics extends Component {
                 onScrollBeginDrag={this.props.onUserScroll}
                 scrollEventThrottle={AUTO_SCROLL_DELTA_TIME}>
 
-                <View
-                    onLayout={this.onLyricsContainerLayout.bind(this)}
-                    style={this.props.containerStyle}>
-
-                    {this.createLyricsElements(this.props.lyricsText)}
+                <View onLayout={this.onLyricsContainerLayout.bind(this)} style={this.props.containerStyle}>
+                    {this.createLyricsSentences()}
                 </View>
             </ScrollView>
         );
@@ -201,7 +206,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     word: {
-        color: Colors.lighterGrey
+        color: Colors.lighterGrey,
     },
     wordWithChords: {
         flexDirection: 'row'

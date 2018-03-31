@@ -1,15 +1,6 @@
 import Toast from 'react-native-root-toast';
 export * from './appStorage';
-
-export const snapshotToObject = (snapshot) => ({...snapshot.val(), key: snapshot.key});
-
-export const snapshotToArray = (snapshot) => {
-    const result = [];
-    snapshot.forEach(childSnapshot => {
-        result.push(snapshotToObject(childSnapshot))
-    });
-    return result;
-};
+export * from './firebaseUtils'
 
 export const showToastMessage = (message, duration) => Toast.show(message, {
     duration: duration || Toast.durations.SHORT,

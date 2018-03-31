@@ -12,7 +12,7 @@ import {
     SONGS_SEARCH_SUCCESS,
     PLAYED_SONG_CHANGE_REQUEST,
     PLAYED_SONG_CHANGE_SUCCESS,
-    PLAYED_SONG_CHANGE_FAILURE
+    PLAYED_SONG_CHANGE_FAILURE, SONG_LIKE_REQUEST
 } from './actionTypes';
 import {SongsConfig} from '../../config';
 
@@ -25,12 +25,13 @@ export const fetchGroupSongs = (group) => {
                 const songs = result.reduce((array, snapshot) => [...array, snapshotToObject(snapshot)], []);
                 dispatch({type: GROUP_SONGS_FETCH_SUCCESS, payload: songs});
             })
-            .catch(error => ({type: GROUP_SONGS_FETCH_FAILURE, payload: error.message}));
+            .catch(error => dispatch({type: GROUP_SONGS_FETCH_FAILURE, payload: error.message}));
     };
 };
 
 export const addSongsToGroup = (group, member, newSongs) => {
     return (dispatch) => {
+        updateSongViews(newSongs);
         dispatch({type: GROUP_SONGS_ADD_REQUEST});
         return firebase.database().ref(`/groups/${group.key}`)
             .update({items: [...group.items, ...newSongs.map(song => ({song, member}))]})
@@ -49,8 +50,7 @@ export const searchSongs = (searchText = '', fromText = '', pageSize = SongsConf
         return firebase.database().ref('/songs')
             .orderByChild('name')
             .startAt(startFrom)
-            .endAt(startFrom + '\uf8ff')
-            .limitToFirst(pageSize + 1)
+            .limitToFirst(fromText ? pageSize + 1 : pageSize)
             .once('value',
                 snapshot => dispatch({
                     type: SONGS_SEARCH_SUCCESS,
@@ -69,4 +69,28 @@ export const changePlayedSong = (group, songPosition) => {
             .then(() => dispatch({type: PLAYED_SONG_CHANGE_SUCCESS}))
             .catch(error => dispatch({type: PLAYED_SONG_CHANGE_FAILURE, payload: error.message}));
     };
+};
+
+/**
+ * Increments the likes-count of the specified song.
+ */
+export const likeSong = (songKey) => {
+    return (dispatch) => {
+        dispatch({type: SONG_LIKE_REQUEST});
+        return firebase.database()
+            .ref(`/songs/${songKey}`)
+            .child('likesCount')
+            .transaction(likesCount => (likesCount || 0) + 1)
+    }
+};
+
+/**
+ * Increments the views-count of the specified songs.
+ */
+export const updateSongViews = (songKeys) => {
+    songKeys.forEach(key => firebase.database()
+        .ref(`/songs/${key}`)
+        .child('viewsCount')
+        .transaction(viewsCount => (viewsCount || 0) + 1)
+    );
 };

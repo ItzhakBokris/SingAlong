@@ -92,10 +92,11 @@ class SearchSong extends Component {
         return (
             <View style={styles.container}>
                 <SearchBar
-                    {...Styles.searchBar}
-                    {...this.getClearIconStyle()}
+                    value={this.props.searchText}
                     onChangeText={this.props.searchSongs}
-                    placeholder='Search songs...'/>
+                    placeholder='Search songs...'
+                    {...Styles.searchBar}
+                    {...this.getClearIconStyle()}/>
 
                 {this.renderSelectedSongsCarousel()}
                 {this.renderSongList()}

@@ -5,30 +5,33 @@ import {Actions} from 'react-native-router-flux';
 import {Icon} from 'react-native-elements';
 import {ViewPager} from 'rn-viewpager';
 import {Colors} from '../../../styles';
-import {changeFontSizeScale, fetchFontSizeScale, fetchSongLyrics} from '../../../store/lyrics/actions';
+import {changeFontSizeScale, showChords, fetchSongLyrics} from '../../../store/lyrics/actions';
 import {changePlayedSong} from '../../../store/song/actions';
 import {showToastMessage} from '../../../utils';
 import {SongLyrics} from '../../../components';
+import {fetchGroup} from '../../../store/group/actions';
 
-const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9];
+const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 1.75, 2, 0.5, 0.67, 0.75, 0.8, 0.9];
 
 class SongPage extends Component {
 
     state = {
-        isAutoScroll: false,
-        showChords: false
+        isAutoScroll: false
     };
 
     componentWillMount() {
         if (this.props.group) {
-            this.goToSong(this.props, this.props.group.currentPlayed);
+            if (this.props.isSynchronized) {
+                this.goToCurrentSong(this.props);
+            } else {
+                this.props.fetchGroup(this.props.group.key);
+            }
         }
-        this.props.fetchFontSizeScale();
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
-            this.goToSong(nextProps, nextProps.group.currentPlayed);
+            this.goToCurrentSong(nextProps);
         }
     }
 
@@ -36,7 +39,8 @@ class SongPage extends Component {
         const {group, groupSongs, changePlayedSong} = this.props;
         if (group.currentPlayed < groupSongs.length - 1) {
             changePlayedSong(group, group.currentPlayed + 1);
-            this.goToSong(this.props, group.currentPlayed + 1);
+            this.fetchLyrics(this.props, group.currentPlayed + 1);
+            this.setState({isAutoScroll: false});
         }
     }
 
@@ -44,7 +48,8 @@ class SongPage extends Component {
         const {group, changePlayedSong} = this.props;
         if (group.currentPlayed > 0) {
             changePlayedSong(group, group.currentPlayed - 1);
-            this.goToSong(this.props, group.currentPlayed - 1);
+            this.fetchLyrics(this.props, group.currentPlayed - 1);
+            this.setState({isAutoScroll: false});
         }
     }
 
@@ -58,7 +63,14 @@ class SongPage extends Component {
         this.setState({isAutoScroll: !this.state.isAutoScroll});
     }
 
-    goToSong(props, songPosition) {
+    goToCurrentSong(props) {
+        this.fetchLyrics(props, props.group.currentPlayed);
+        if (this.pager && this.pager.state.page !== props.group.currentPlayed) {
+            this.pager.setPage(props.group.currentPlayed);
+        }
+    }
+
+    fetchLyrics(props, songPosition) {
         if (props.groupSongs.length > songPosition) {
             const song = props.groupSongs[songPosition];
             const lyrics = props.lyricsMap[song.lyrics];
@@ -66,14 +78,14 @@ class SongPage extends Component {
                 props.fetchSongLyrics(song);
             }
         }
-        if (this.pager && this.pager.state.page !== songPosition) {
-            this.pager.setPage(songPosition);
-            this.setState({isAutoScroll: false});
-        }
     }
 
     showHideChords() {
-        this.setState({showChords: !this.state.showChords});
+        this.props.showChords(!this.props.chordsShown);
+    }
+
+    likeSong() {
+
     }
 
     changeFontSizeScale() {
@@ -94,28 +106,30 @@ class SongPage extends Component {
         return require('../../../../assets/defaultCover.jpg')
     }
 
-    renderLyrics(song) {
-        const lyrics = this.props.lyricsMap[song.lyrics];
+    renderLyrics(song, index) {
+        const {lyricsMap, group, fontSizeScale, chordsShown} = this.props;
+        const lyrics = lyricsMap[song.lyrics];
         if (!lyrics || !lyrics.text) {
             return (
                 <ActivityIndicator style={styles.songLoader}/>
             );
         }
         LayoutAnimation.easeInEaseOut();
+        const isCurrentPlayed = group && index === group.currentPlayed;
         return (
             <SongLyrics
                 lyricsText={lyrics.text}
                 chordsColor={Colors.blue}
-                autoScroll={this.state.isAutoScroll}
-                fontSizeScale={this.props.fontSizeScale}
-                showChords={this.state.showChords}
+                autoScroll={isCurrentPlayed && this.state.isAutoScroll}
+                fontSizeScale={fontSizeScale}
+                showChords={chordsShown}
                 containerStyle={styles.lyricsContainer}
                 onUserScroll={this.stopAutoScroll.bind(this)}
                 onEndReached={this.stopAutoScroll.bind(this)}/>
         );
     }
 
-    renderSong(song) {
+    renderSong(song, index) {
         return (
             <View key={song.key}>
                 <View style={styles.header}>
@@ -128,25 +142,33 @@ class SongPage extends Component {
                     </Text>
 
                     <View style={{flexDirection: 'row', marginTop: 10}}>
-                        <Text style={{color: Colors.primary}}>23 </Text>
+                        <Text style={{color: Colors.light}}>{song.likesCount} </Text>
                         <Icon
-                            name='heart-outline'
                             type='material-community'
+                            name='heart-outline'
                             size={16}
-                            color={Colors.primary}/>
+                            color={Colors.light}
+                            onPress={this.likeSong.bind(this)}/>
 
-                        <Text style={{color: Colors.primary, marginLeft: 10}}>78 </Text>
+                        <Text style={{color: Colors.light, marginLeft: 10}}>{song.viewsCount} </Text>
                         <Icon
-                            type='simple-line-icon'
-                            name='microphone'
+                            type='material-community'
+                            name='microphone-variant'
                             size={16}
-                            color={Colors.primary}/>
+                            color={Colors.light}/>
                     </View>
                 </View>
 
-                {this.renderLyrics(song)}
+                {this.renderLyrics(song, index)}
             </View>
         );
+    }
+
+    onSongsPagerReady(component) {
+        this.pager = component;
+        if (this.props.group) {
+            this.goToCurrentSong(this.props);
+        }
     }
 
     renderGroupSongsPager() {
@@ -159,7 +181,7 @@ class SongPage extends Component {
             <ViewPager
                 keyboardShouldPersistTaps='handled'
                 style={styles.container}
-                ref={component => this.pager = component}
+                ref={this.onSongsPagerReady.bind(this)}
                 horizontalScroll={false}
                 scrollEnabled={false}>
 
@@ -200,7 +222,7 @@ class SongPage extends Component {
                     {...iconButtonStyle}/>
 
                 <Icon
-                    name={'music-note' + (this.state.showChords ? '-off' : '')}
+                    name={'music-note' + (this.props.chordsShown ? '-off' : '')}
                     type='material-community'
                     onPress={this.showHideChords.bind(this)}
                     containerStyle={styles.sideButtonContainer}
@@ -343,14 +365,16 @@ const mapStateToProps = (state) => ({
     ...state.groupData,
     ...state.songData,
     ...state.lyricsData,
-    isAdmin: state.groupData.group && state.userData.nickname === state.groupData.group.creator
+    ...state.userData,
+    isAdmin: state.groupData.group && state.userData.nickname === state.groupData.group.admin
 });
 
 const actions = {
     fetchSongLyrics,
     changePlayedSong,
-    fetchFontSizeScale,
-    changeFontSizeScale
+    changeFontSizeScale,
+    showChords,
+    fetchGroup
 };
 
 export default connect(mapStateToProps, actions)(SongPage);

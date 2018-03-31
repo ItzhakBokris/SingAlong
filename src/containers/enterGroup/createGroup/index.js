@@ -23,7 +23,7 @@ class CreateGroup extends Component {
             if (nextProps.isRequested) {
                 Actions.refresh({rightTitle: 'Loading', onRight: () => null})
             } else if (!nextProps.error) {
-                Actions.main();
+                Actions.main({type: 'reset'});
             } else {
                 showToastMessage('Something went wrong please try again');
                 Actions.refresh({rightTitle: 'Open', onRight: this.onNextPress.bind(this)});

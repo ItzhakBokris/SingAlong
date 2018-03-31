@@ -29,7 +29,7 @@ class InviteMember extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Section containerStyle={styles.invitationContainer} firstChild>
+                <Section containerStyle={styles.invitationContainer}>
                     <Text style={styles.invitationHeader}>Group Pin Code</Text>
                     <Text style={styles.pinCode}>{this.props.group.pinCode}</Text>
                 </Section>

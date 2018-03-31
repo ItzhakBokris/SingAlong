@@ -13,14 +13,6 @@ import {
 
 const INITIAL_STATE = {
     groupSongs: [],
-    // groupSongs: [
-    //     {
-    //         artist: 'Bryan Adams',
-    //         image: 'https://mediashironet.mako.co.il/media/performers/eng/0/831/profile/831_t65.jpg',
-    //         lyrics: '-L5LYaLwYaXYsKAnhTzV',
-    //         name: 'Heaven'
-    //     }
-    // ],
     isRequested: false,
     error: null,
     isAddRequested: false,

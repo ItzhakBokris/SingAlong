@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {StatusBar, View, StyleSheet, Linking} from 'react-native';
 import {Router, Scene} from 'react-native-router-flux';
+import PropTypes from 'prop-types';
 import {Styles} from '../../styles';
 import EnterGroup from '../enterGroup';
 import CreateGroup from '../enterGroup/createGroup'
@@ -15,6 +16,14 @@ import {showToastMessage} from '../../utils';
 import {GroupConfig} from '../../config';
 
 export default class Root extends Component {
+
+    static propTypes = {
+        isGroupConnected: PropTypes.bool
+    };
+
+    static defaultProps = {
+        isGroupConnected: false
+    };
 
     state = {
         groupUid: null
@@ -63,7 +72,7 @@ export default class Root extends Component {
                                 component={JoinGroup}/>
                         </Scene>
 
-                        <Scene key='main' modal>
+                        <Scene key='main' modal initial={this.props.isGroupConnected}>
                             <Scene
                                 initial
                                 hideNavBar

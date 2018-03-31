@@ -10,4 +10,8 @@ export const GROUP_JOIN_REQUEST = 'group_join_request';
 export const GROUP_JOIN_SUCCESS = 'group_join_success';
 export const GROUP_JOIN_FAILURE = 'group_join_failure';
 
+export const GROUP_LEAVE_REQUEST = 'group_leave_request';
+export const GROUP_LEAVE_SUCCESS = 'group_leave_success';
+export const GROUP_LEAVE_FAILURE = 'group_leave_failure';
+
 export const GROUP_CLEAR = 'group_clear';
