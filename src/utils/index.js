@@ -1,4 +1,9 @@
+import React from 'react';
+import {Platform} from 'react-native';
+import {Icon} from 'react-native-elements';
 import Toast from 'react-native-root-toast';
+import {Actions} from 'react-native-router-flux';
+import {Colors} from '../styles';
 export * from './appStorage';
 export * from './firebaseUtils'
 
@@ -22,4 +27,21 @@ export const hashCode = (text) => {
         hash |= 0; // convert to 32bit integer
     }
     return (hash >= 0 ? '0' : '1') + Math.abs(hash);
+};
+
+export const setActionBarRightButton = (title, iconType, iconName, onPress) => {
+    if (Platform.OS === 'android') {
+        Actions.refresh({
+            rightButton: (<Icon
+                color='white'
+                type={iconType}
+                name={iconName}
+                underlayColor={Colors.light}
+                containerStyle={{padding: 10, marginRight: 4}}
+                onPress={onPress}
+            />)
+        });
+    } else {
+        Actions.refresh({rightTitle: title, onRight: onPress});
+    }
 };

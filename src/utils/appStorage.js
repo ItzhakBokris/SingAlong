@@ -21,6 +21,11 @@ export const saveAppState = (state) => {
     try {
         const partialState = {
             userData: state.userData,
+            appData: state.appData && {
+                rating: state.appData.rating,
+                feedback: state.appData.feedback,
+                stepsBeforeRate: state.appData.stepsBeforeRate
+            },
             groupData: state.groupData && {group: state.groupData.group},
             songData: state.songData && {groupSongs: state.songData.groupSongs},
             lyricsData: state.lyricsData

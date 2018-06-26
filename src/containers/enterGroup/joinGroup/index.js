@@ -1,17 +1,22 @@
 import React, {Component} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {clearGroup, joinToGroup} from '../../../store/group/actions';
 import {EditGroupProperty} from '../editGroupProperty';
 import {showToastMessage} from '../../../utils/index';
 import {changeNickname} from '../../../store/groupJoining/actions';
+import {setActionBarRightButton} from '../../../utils';
 
 class JoinGroup extends Component {
 
+    state = {
+        isJoining: false
+    };
+
     componentWillMount() {
+        setActionBarRightButton('Join', 'MaterialIcons', 'check', this.onNextPress.bind(this));
         Actions.refresh({
-            onRight: this.onNextPress.bind(this),
             onBack: () => {
                 this.props.clearGroup(this.props.group);
                 Actions.pop();
@@ -21,26 +26,27 @@ class JoinGroup extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.isRequested !== this.props.isRequested) {
-            if (nextProps.isRequested) {
-                Actions.refresh({rightTitle: 'Loading', onRight: () => null})
-            } else if (!nextProps.error) {
+        if (nextProps.isRequested !== this.props.isRequested && !nextProps.isRequested) {
+            if (!nextProps.error) {
                 Actions.main({type: 'reset'});
             } else {
                 showToastMessage('Something went wrong please try again');
-                Actions.refresh({rightTitle: 'Join', onRight: this.onNextPress.bind(this)});
+                this.setState({isJoining: false});
             }
         }
     }
 
     onNextPress() {
-        const {nickname, group, joinToGroup} = this.props;
-        if (!nickname) {
-            showToastMessage('Please provide your nickname');
-        } else if (group.members && group.members.indexOf(nickname) >= 0) {
-            showToastMessage('A user with this nickname already exists');
-        } else {
-            joinToGroup(group, nickname);
+        if (!this.state.isJoining) {
+            const {nickname, group, joinToGroup} = this.props;
+            if (!nickname) {
+                showToastMessage('Please provide your nickname');
+            } else if (group.members && group.members.indexOf(nickname) >= 0) {
+                showToastMessage('A user with this nickname already exists');
+            } else {
+                this.setState({isJoining: true});
+                joinToGroup(group, nickname);
+            }
         }
     }
 

@@ -3,33 +3,40 @@ import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import SearchSong from '../../search'
 import {addSongsToGroup} from '../../../store/song/actions';
-import {showToastMessage} from '../../../utils';
+import {setActionBarRightButton, showToastMessage} from '../../../utils';
+import {decreaseStepsBeforeRate} from '../../../store/app/actions';
 
 class AddSongs extends Component {
 
+    state = {
+        isAdding: false
+    };
+
     componentWillMount() {
-        Actions.refresh({onRight: this.onAddPress.bind(this)});
+        setActionBarRightButton('Add', 'MaterialIcons', 'check', this.onAddPress.bind(this));
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.isAddRequested !== this.props.isAddRequested) {
-            if (nextProps.isAddRequested) {
-                Actions.refresh({rightTitle: 'Loading', onRight: () => null})
-            } else if (!nextProps.addError) {
+        if (nextProps.isAddRequested !== this.props.isAddRequested && !nextProps.isAddRequested) {
+            if (!nextProps.addError) {
+                this.props.decreaseStepsBeforeRate();
                 Actions.pop();
             } else {
                 showToastMessage('Something went wrong please try again');
-                Actions.refresh({rightTitle: 'Add', onRight: this.onAddPress.bind(this)});
+                this.setState({isAdding: false});
             }
         }
     }
 
     onAddPress() {
-        const {group, nickname, selectedSongs, addSongsToGroup} = this.props;
-        if (selectedSongs.length > 0) {
-            addSongsToGroup(group, nickname, selectedSongs.map(song => song.key));
-        } else {
-            showToastMessage('Please select at lease one song');
+        if (!this.state.isAdding) {
+            const {group, nickname, selectedSongs, addSongsToGroup} = this.props;
+            if (selectedSongs.length > 0) {
+                this.setState({isAdding: true});
+                addSongsToGroup(group, nickname, selectedSongs.map(song => song.key));
+            } else {
+                showToastMessage('Please select at lease one song');
+            }
         }
     }
 
@@ -42,4 +49,4 @@ class AddSongs extends Component {
 
 const mapStateToProps = (state) => ({...state.groupData, ...state.userData, ...state.songData, ...state.searchData});
 
-export default connect(mapStateToProps, {addSongsToGroup})(AddSongs);
+export default connect(mapStateToProps, {addSongsToGroup, decreaseStepsBeforeRate})(AddSongs);

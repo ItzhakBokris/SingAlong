@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {View, StyleSheet, Image, Text, ActivityIndicator, LayoutAnimation} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
+import KeepAwake from 'react-native-keep-awake';
 import {Icon} from 'react-native-elements';
 import {ViewPager} from 'rn-viewpager';
 import {Colors} from '../../../styles';
@@ -10,13 +11,15 @@ import {changePlayedSong} from '../../../store/song/actions';
 import {showToastMessage} from '../../../utils';
 import {SongLyrics} from '../../../components';
 import {fetchGroup} from '../../../store/group/actions';
+import RateAppDialog from '../../rateAppDialog'
 
 const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 1.75, 2, 0.5, 0.67, 0.75, 0.8, 0.9];
 
 class SongPage extends Component {
 
     state = {
-        isAutoScroll: false
+        isAutoScroll: false,
+        showRateAppDialog: false
     };
 
     componentWillMount() {
@@ -32,6 +35,9 @@ class SongPage extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
             this.goToCurrentSong(nextProps);
+        }
+        if (nextProps.stepsBeforeRate !== this.props.stepsBeforeRate && !nextProps.rating && !nextProps.feedback) {
+            this.setState({showRateAppDialog: nextProps.stepsBeforeRate === 0});
         }
     }
 
@@ -201,7 +207,7 @@ class SongPage extends Component {
                 <Icon
                     onPress={this.toggleAutoScroll.bind(this)}
                     {...songsControlButtonStyle}
-                    {...getPlayPauseButtonStyle(!this.state.isAutoScroll)}/>
+                    {...getAutoScrollButtonStyle(!this.state.isAutoScroll)}/>
 
                 {this.props.isAdmin && (<Icon
                     name='step-forward'
@@ -274,6 +280,9 @@ class SongPage extends Component {
                     {this.renderSideButtons()}
                     {this.renderFooterButtons()}
                 </View>
+
+                <RateAppDialog show={this.state.showRateAppDialog}/>
+                <KeepAwake />
             </View>
         );
     }
@@ -354,11 +363,12 @@ const songsControlButtonStyle = {
     color: Colors.primary
 };
 
-const getPlayPauseButtonStyle = (isPlay) => ({
-    name: isPlay ? 'play' : 'pause',
-    size: 28,
-    containerStyle: {marginHorizontal: 12},
-    iconStyle: isPlay ? {marginLeft: 5} : null
+const getAutoScrollButtonStyle = (isPlay) => ({
+    type: 'entypo',
+    name: isPlay ? 'select-arrows' : 'controller-paus',
+    //type: 'material-community',
+    //name: 'gesture-swipe-down',
+    size: 28
 });
 
 const mapStateToProps = (state) => ({
@@ -366,6 +376,7 @@ const mapStateToProps = (state) => ({
     ...state.songData,
     ...state.lyricsData,
     ...state.userData,
+    ...state.appData,
     isAdmin: state.groupData.group && state.userData.nickname === state.groupData.group.admin
 });
 

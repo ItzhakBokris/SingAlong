@@ -1,18 +1,22 @@
 import {snapshotToArray, snapshotToObject} from '../../utils';
 import firebase from 'firebase';
 import {
+    GROUP_SONGS_ADD_FAILURE,
+    GROUP_SONGS_ADD_REQUEST,
+    GROUP_SONGS_ADD_SUCCESS,
     GROUP_SONGS_FETCH_FAILURE,
     GROUP_SONGS_FETCH_REQUEST,
     GROUP_SONGS_FETCH_SUCCESS,
-    GROUP_SONGS_ADD_REQUEST,
-    GROUP_SONGS_ADD_SUCCESS,
-    GROUP_SONGS_ADD_FAILURE,
-    SONGS_SEARCH_FAILURE,
-    SONGS_SEARCH_REQUEST,
-    SONGS_SEARCH_SUCCESS,
+    GROUP_SONGS_REMOVE_FAILURE,
+    GROUP_SONGS_REMOVE_REQUEST,
+    GROUP_SONGS_REMOVE_SUCCESS,
+    PLAYED_SONG_CHANGE_FAILURE,
     PLAYED_SONG_CHANGE_REQUEST,
     PLAYED_SONG_CHANGE_SUCCESS,
-    PLAYED_SONG_CHANGE_FAILURE, SONG_LIKE_REQUEST
+    SONG_LIKE_REQUEST,
+    SONGS_SEARCH_FAILURE,
+    SONGS_SEARCH_REQUEST,
+    SONGS_SEARCH_SUCCESS
 } from './actionTypes';
 import {SongsConfig} from '../../config';
 
@@ -37,6 +41,19 @@ export const addSongsToGroup = (group, member, newSongs) => {
             .update({items: [...group.items, ...newSongs.map(song => ({song, member}))]})
             .then(() => dispatch({type: GROUP_SONGS_ADD_SUCCESS}))
             .catch(error => dispatch({type: GROUP_SONGS_ADD_FAILURE, payload: error.message}));
+    };
+};
+
+export const removeSongFromGroup = (group, songIndex) => {
+    return (dispatch) => {
+        dispatch({type: GROUP_SONGS_REMOVE_REQUEST});
+        const items = [...group.items];
+        items.splice(songIndex, 1);
+        const currentPlayed = group.currentPlayed -= (songIndex <= group.currentPlayed ? 1 : 0);
+        return firebase.database().ref(`/groups/${group.key}`)
+            .update({items, currentPlayed})
+            .then(() => dispatch({type: GROUP_SONGS_REMOVE_SUCCESS}))
+            .catch(error => dispatch({type: GROUP_SONGS_REMOVE_FAILURE, payload: error.message}));
     };
 };
 

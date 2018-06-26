@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StatusBar, View, StyleSheet, Linking} from 'react-native';
+import {Linking, StatusBar, StyleSheet, View} from 'react-native';
 import {Router, Scene} from 'react-native-router-flux';
 import PropTypes from 'prop-types';
 import {Styles} from '../../styles';
@@ -58,7 +58,7 @@ export default class Root extends Component {
 
                             <Scene
                                 backTitle='Back'
-                                rightTitle='Next'
+                                rightTitle=''
                                 onRight={() => null}
                                 key='createGroup'
                                 title='New Group'
@@ -66,7 +66,7 @@ export default class Root extends Component {
 
                             <Scene
                                 backTitle='Back'
-                                rightTitle='Join'
+                                rightTitle=''
                                 onRight={() => null}
                                 key='joinGroup'
                                 component={JoinGroup}/>
@@ -88,7 +88,7 @@ export default class Root extends Component {
 
                             <Scene
                                 backTitle='Back'
-                                rightTitle='Add'
+                                rightTitle=''
                                 onRight={() => null}
                                 key='addSongs'
                                 title='Add Songs'

@@ -14,9 +14,11 @@ export class SongList extends Component {
             member: PropTypes.string.isRequired
         })),
         disableIfAdded: PropTypes.bool,
+        currentPlayed: PropTypes.number,
         containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
         onEndReached: PropTypes.func,
-        onSongPress: PropTypes.func
+        onSongPress: PropTypes.func,
+        onSongLongPress: PropTypes.func
     };
 
     static defaultProps = {
@@ -24,7 +26,8 @@ export class SongList extends Component {
         addedSongs: [],
         containerStyle: {},
         onEndReached: () => null,
-        onSongPress: () => null
+        onSongPress: () => null,
+        onSongLongPress: () => null
     };
 
     componentWillMount() {
@@ -40,7 +43,12 @@ export class SongList extends Component {
         this.songsDataSource = dataSource.cloneWithRows(props.songs);
     }
 
-    renderSongRow(song) {
+    getContainerStyle(songIndex) {
+        return this.props.currentPlayed === songIndex ? styles.currentSongContainerStyle : null;
+    }
+
+    renderSongRow(song, sectionIndex, songIndex) {
+        songIndex = Number(songIndex);
         const addedSong = this.props.addedSongs && this.props.addedSongs.find(item => item.song === song.key);
         const rightTitle = addedSong && 'Added by ' + addedSong.member;
         return (
@@ -52,9 +60,11 @@ export class SongList extends Component {
                 rightTitle={rightTitle}
                 titleStyle={styles.listItemTitle}
                 subtitleStyle={styles.listItemSubtitleStyle}
+                containerStyle={this.getContainerStyle(songIndex)}
                 rightIcon={this.renderSongRightIcon(song)}
                 avatar={<Avatar medium source={{uri: song.image}}/>}
-                onPress={() => this.props.onSongPress(song)}/>
+                onPress={() => this.props.onSongPress(song, songIndex)}
+                onLongPress={() => this.props.onSongLongPress(song, songIndex)}/>
         );
     }
 
@@ -90,6 +100,9 @@ const styles = StyleSheet.create({
         fontSize: FontSizes.header
     },
     listItemSubtitleStyle: {
-        textAlign: 'left',
+        textAlign: 'left'
+    },
+    currentSongContainerStyle: {
+        backgroundColor: Colors.lighterGrey
     }
 });

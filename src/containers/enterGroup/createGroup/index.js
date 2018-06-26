@@ -1,32 +1,32 @@
 import React, {Component} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {ViewPager} from 'rn-viewpager';
-import {changeName, changeCreator, changeSongs} from '../../../store/groupCreation/actions';
+import {changeCreator, changeName, changeSongs} from '../../../store/groupCreation/actions';
 import {createGroup} from '../../../store/group/actions';
 import SearchSong from '../../search/index';
 import {EditGroupProperty} from '../editGroupProperty';
 import {showToastMessage} from '../../../utils/index';
+import {setActionBarRightButton} from '../../../utils';
 
 class CreateGroup extends Component {
 
+    state = {
+        isCreating: false
+    };
+
     componentWillMount() {
-        Actions.refresh({
-            onRight: this.onNextPress.bind(this),
-            onBack: this.onBackPress.bind(this)
-        });
+        setActionBarRightButton('Next', 'MaterialIcons', 'check', this.onNextPress.bind(this));
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.isRequested !== this.props.isRequested) {
-            if (nextProps.isRequested) {
-                Actions.refresh({rightTitle: 'Loading', onRight: () => null})
-            } else if (!nextProps.error) {
+        if (nextProps.isRequested !== this.props.isRequested && !nextProps.isRequested) {
+            if (!nextProps.error) {
                 Actions.main({type: 'reset'});
             } else {
                 showToastMessage('Something went wrong please try again');
-                Actions.refresh({rightTitle: 'Open', onRight: this.onNextPress.bind(this)});
+                this.setState({isCreating: false});
             }
         }
         if (nextProps.selectedSongs !== this.props.selectedSongs) {
@@ -43,33 +43,36 @@ class CreateGroup extends Component {
     }
 
     onNextPress() {
-        const {name, creator, songs, createGroup} = this.props;
-        const steps = Object.values(CREATE_GROUP_STEPS);
-        const step = steps[this.pager.state.page];
-        switch (step) {
-            case CREATE_GROUP_STEPS.SELECT_GROUP_SONGS:
-                if (songs.length === 0) {
-                    return showToastMessage('Please select at least one song');
-                }
-                break;
+        if (!this.state.isAdding) {
+            const {name, creator, songs, createGroup} = this.props;
+            const steps = Object.values(CREATE_GROUP_STEPS);
+            const step = steps[this.pager.state.page];
+            switch (step) {
+                case CREATE_GROUP_STEPS.SELECT_GROUP_SONGS:
+                    if (songs.length === 0) {
+                        return showToastMessage('Please select at least one song');
+                    }
+                    break;
 
-            case CREATE_GROUP_STEPS.ENTER_GROUP_NAME:
-                if (!name) {
-                    return showToastMessage('Please provide a group name');
-                }
-                break;
+                case CREATE_GROUP_STEPS.ENTER_GROUP_NAME:
+                    if (!name) {
+                        return showToastMessage('Please provide a group name');
+                    }
+                    break;
 
-            case CREATE_GROUP_STEPS.ENTER_NICKNAME:
-                if (!creator) {
-                    return showToastMessage('Please provide your nickname');
-                }
-        }
+                case CREATE_GROUP_STEPS.ENTER_NICKNAME:
+                    if (!creator) {
+                        return showToastMessage('Please provide your nickname');
+                    }
+            }
 
-        if (this.pager.state.page < steps.length - 1) {
-            this.pager.setPage(this.pager.state.page + 1);
-            Actions.refresh({rightTitle: this.pager.state.page < steps.length - 2 ? 'Next' : 'Open'});
-        } else {
-            createGroup(name, creator, songs.map(song => song.key));
+            if (this.pager.state.page < steps.length - 1) {
+                this.pager.setPage(this.pager.state.page + 1);
+                Actions.refresh({rightTitle: this.pager.state.page < steps.length - 2 ? 'Next' : 'Create'});
+            } else {
+                this.setState({isCreating: true});
+                createGroup(name, creator, songs.map(song => song.key));
+            }
         }
     }
 

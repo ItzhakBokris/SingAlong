@@ -6,6 +6,7 @@ import {GroupReducer} from './group/reducer';
 import {SongReducer} from './song/reducer';
 import {SearchReducer} from './search/reducer';
 import {LyricsReducer} from './lyrics/reducer';
+import {AppReducer} from './app/reducer';
 
 export default combineReducers({
     groupCreationData: GroupCreationReducer,
@@ -14,5 +15,6 @@ export default combineReducers({
     searchData: SearchReducer,
     groupData: GroupReducer,
     songData: SongReducer,
-    lyricsData: LyricsReducer
+    lyricsData: LyricsReducer,
+    appData: AppReducer
 });

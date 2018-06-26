@@ -13,6 +13,7 @@
     "react": "16.2.0",
     "react-native": "0.52.2",
     "react-native-elements": "^1.0.0-beta2",
+    "react-native-keep-awake": "^3.0.1",
     "react-native-root-toast": "^3.0.1",
     "react-native-router-flux": "^4.0.0-beta.28",
     "react-native-vector-icons": "^4.5.0",
