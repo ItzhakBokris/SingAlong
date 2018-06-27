@@ -1,4 +1,5 @@
 export const AppConfig = {
+    version: require('../../package.json').version,
     linkPrefix: 'https://singalong.com/'
 };
 
