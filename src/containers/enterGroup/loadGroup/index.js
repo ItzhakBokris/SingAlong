@@ -8,13 +8,18 @@ import {Loader} from '../../../components/loader';
 
 class LoadGroup extends Component {
 
-    state = {
-        isLoading: false
-    };
-
     static propTypes = {
         pinCode: PropTypes.string,
-        uid: PropTypes.string
+        uid: PropTypes.string,
+        onLoadGroup: PropTypes.func
+    };
+
+    static defaultProps = {
+        onLoadGroup: () => null
+    };
+
+    state = {
+        isLoading: false
     };
 
     componentWillMount() {
@@ -26,8 +31,13 @@ class LoadGroup extends Component {
             this.tryLoadGroup(nextProps);
         } else if (this.state.isLoading && !nextProps.isRequested) {
             if (!nextProps.error && nextProps.group) {
+                this.props.onLoadGroup(nextProps.group);
+                if (this.props.group) {
+                    Actions.onBoarding({type: 'reset'});
+                }
                 Actions.joinGroup();
             } else {
+                this.props.onLoadGroup(null);
                 showToastMessage('Something went wrong please try again');
             }
             this.setState({isLoading: false});

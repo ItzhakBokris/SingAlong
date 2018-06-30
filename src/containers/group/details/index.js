@@ -62,7 +62,7 @@ class GroupDetails extends Component {
                     <Section>
                         <ListItem
                             title='Edit profile'
-                            onPress={() => null}
+                            onPress={() => Actions.editProfile()}
                             leftIcon={{name: 'account-edit', type: 'material-community'}}
                             {...Styles.listActionItem}/>
 

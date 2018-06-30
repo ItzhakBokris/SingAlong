@@ -35,11 +35,14 @@ export const fetchGroupSongs = (group) => {
 
 export const addSongsToGroup = (group, member, newSongs) => {
     return (dispatch) => {
-        updateSongViews(newSongs);
         dispatch({type: GROUP_SONGS_ADD_REQUEST});
-        return firebase.database().ref(`/groups/${group.key}`)
+        return firebase.database()
+            .ref(`/groups/${group.key}`)
             .update({items: [...group.items, ...newSongs.map(song => ({song, member}))]})
-            .then(() => dispatch({type: GROUP_SONGS_ADD_SUCCESS}))
+            .then(() => {
+                dispatch({type: GROUP_SONGS_ADD_SUCCESS});
+                updateSongViews(newSongs);
+            })
             .catch(error => dispatch({type: GROUP_SONGS_ADD_FAILURE, payload: error.message}));
     };
 };
@@ -50,7 +53,8 @@ export const removeSongFromGroup = (group, songIndex) => {
         const items = [...group.items];
         items.splice(songIndex, 1);
         const currentPlayed = group.currentPlayed -= (songIndex <= group.currentPlayed ? 1 : 0);
-        return firebase.database().ref(`/groups/${group.key}`)
+        return firebase.database()
+            .ref(`/groups/${group.key}`)
             .update({items, currentPlayed})
             .then(() => dispatch({type: GROUP_SONGS_REMOVE_SUCCESS}))
             .catch(error => dispatch({type: GROUP_SONGS_REMOVE_FAILURE, payload: error.message}));
@@ -64,7 +68,8 @@ export const searchSongs = (searchText = '', fromText = '', pageSize = SongsConf
     return (dispatch) => {
         dispatch({type: SONGS_SEARCH_REQUEST, payload: {searchText, pageSize, fromText}});
         const startFrom = fromText || searchText;
-        return firebase.database().ref('/songs')
+        return firebase.database()
+            .ref('/songs')
             .orderByChild('name')
             .startAt(startFrom)
             .limitToFirst(fromText ? pageSize + 1 : pageSize)
@@ -81,7 +86,8 @@ export const searchSongs = (searchText = '', fromText = '', pageSize = SongsConf
 export const changePlayedSong = (group, songPosition) => {
     return (dispatch) => {
         dispatch({type: PLAYED_SONG_CHANGE_REQUEST});
-        return firebase.database().ref(`/groups/${group.key}`)
+        return firebase.database()
+            .ref(`/groups/${group.key}`)
             .update({currentPlayed: songPosition})
             .then(() => dispatch({type: PLAYED_SONG_CHANGE_SUCCESS}))
             .catch(error => dispatch({type: PLAYED_SONG_CHANGE_FAILURE, payload: error.message}));

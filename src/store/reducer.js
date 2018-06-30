@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux';
 import {GroupCreationReducer} from './groupCreation/reducer';
 import {GroupJoiningReducer} from './groupJoining/reducer';
+import {ProfileUpdatingReducer} from './profileUpdating/reducer';
 import {UserReducer} from './user/reducer';
 import {GroupReducer} from './group/reducer';
 import {SongReducer} from './song/reducer';
@@ -11,6 +12,7 @@ import {AppReducer} from './app/reducer';
 export default combineReducers({
     groupCreationData: GroupCreationReducer,
     groupJoiningData: GroupJoiningReducer,
+    profileUpdatingData: ProfileUpdatingReducer,
     userData: UserReducer,
     searchData: SearchReducer,
     groupData: GroupReducer,

@@ -28,7 +28,11 @@ export const saveAppState = (state) => {
             },
             groupData: state.groupData && {group: state.groupData.group},
             songData: state.songData && {groupSongs: state.songData.groupSongs},
-            lyricsData: state.lyricsData
+            lyricsData: state.lyricsData && {
+                fontSizeScale: state.lyricsData.fontSizeScale,
+                chordsShown: state.lyricsData.chordsShown,
+                lyricsMap: {}
+            }
         };
         AsyncStorage.setItem(APP_STATE_KEY, JSON.stringify(partialState));
     }

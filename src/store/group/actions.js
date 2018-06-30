@@ -9,6 +9,9 @@ import {
     GROUP_JOIN_REQUEST,
     GROUP_JOIN_SUCCESS,
     GROUP_JOIN_FAILURE,
+    GROUP_MEMBER_UPDATE_REQUEST,
+    GROUP_MEMBER_UPDATE_SUCCESS,
+    GROUP_MEMBER_UPDATE_FAILURE,
     GROUP_LEAVE_REQUEST,
     GROUP_LEAVE_SUCCESS,
     GROUP_LEAVE_FAILURE,
@@ -64,6 +67,24 @@ export const joinToGroup = (group, nickname) => {
                 dispatch({type: USER_NICKNAME_SET, payload: nickname});
             })
             .catch(error => dispatch({type: GROUP_JOIN_FAILURE, payload: error.message}));
+    };
+};
+
+export const updateGroupMember = (group, nickname, newNickname) => {
+    return (dispatch) => {
+        dispatch({type: GROUP_MEMBER_UPDATE_REQUEST});
+        const updateName = (name) => name === nickname ? newNickname : name;
+        firebase.database().ref(`/groups/${group.key}`)
+            .update({
+                members: group.members.map(member => updateName(member)),
+                items: group.items.map(item => ({...item, member: updateName(item.member)})),
+                admin: updateName(group.admin)
+            })
+            .then(() => {
+                dispatch({type: GROUP_MEMBER_UPDATE_SUCCESS});
+                dispatch({type: USER_NICKNAME_SET, payload: newNickname});
+            })
+            .catch(error => dispatch({type: GROUP_MEMBER_UPDATE_FAILURE, payload: error.message}));
     };
 };
 

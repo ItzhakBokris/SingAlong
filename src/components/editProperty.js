@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
-import {Input, SongList} from '../../components/index';
-import {Colors} from '../../styles/index';
+import {Input, SongList} from './index';
+import {Colors} from '../styles/index';
 
-export class EditGroupProperty extends Component {
+export class EditProperty extends Component {
 
     static propTypes = {
         value: PropTypes.string,

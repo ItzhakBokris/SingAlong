@@ -1,25 +1,27 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, Image, Text, ActivityIndicator, LayoutAnimation} from 'react-native';
+import {ActivityIndicator, Image, LayoutAnimation, Platform, StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import KeepAwake from 'react-native-keep-awake';
 import {Icon} from 'react-native-elements';
 import {ViewPager} from 'rn-viewpager';
 import {Colors} from '../../../styles';
-import {changeFontSizeScale, showChords, fetchSongLyrics} from '../../../store/lyrics/actions';
+import {changeFontSizeScale, fetchSongLyrics, showChords} from '../../../store/lyrics/actions';
 import {changePlayedSong} from '../../../store/song/actions';
 import {showToastMessage} from '../../../utils';
 import {SongLyrics} from '../../../components';
 import {fetchGroup} from '../../../store/group/actions';
 import RateAppDialog from '../../rateAppDialog'
 
-const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 1.75, 2, 0.5, 0.67, 0.75, 0.8, 0.9];
+//const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 1.75, 2, 0.5, 0.67, 0.75, 0.8, 0.9];
+const FONT_SIZE_SCALES = [1, 1.5, 2, 0.5, 0.75];
 
 class SongPage extends Component {
 
     state = {
         isAutoScroll: false,
-        showRateAppDialog: false
+        showRateAppDialog: false,
+        showLyrics: true
     };
 
     componentWillMount() {
@@ -34,7 +36,7 @@ class SongPage extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
-            this.goToCurrentSong(nextProps);
+            this.goToCurrentSong(nextProps, true);
         }
         if (nextProps.stepsBeforeRate !== this.props.stepsBeforeRate && !nextProps.rating && !nextProps.feedback) {
             this.setState({showRateAppDialog: nextProps.stepsBeforeRate === 0});
@@ -69,10 +71,15 @@ class SongPage extends Component {
         this.setState({isAutoScroll: !this.state.isAutoScroll});
     }
 
-    goToCurrentSong(props) {
+    goToCurrentSong(props, withDelay) {
         this.fetchLyrics(props, props.group.currentPlayed);
         if (this.pager && this.pager.state.page !== props.group.currentPlayed) {
+            this.setState({isAutoScroll: false});
             this.pager.setPage(props.group.currentPlayed);
+            if (withDelay) {
+                this.setState({showLyrics: false});
+                setTimeout(() => this.setState({showLyrics: true}));
+            }
         }
     }
 
@@ -115,18 +122,18 @@ class SongPage extends Component {
     renderLyrics(song, index) {
         const {lyricsMap, group, fontSizeScale, chordsShown} = this.props;
         const lyrics = lyricsMap[song.lyrics];
-        if (!lyrics || !lyrics.text) {
+        const isCurrentPlayed = group && index === group.currentPlayed;
+        LayoutAnimation.easeInEaseOut();
+        if (!this.state.showLyrics || !isCurrentPlayed || !lyrics || !lyrics.text) {
             return (
                 <ActivityIndicator style={styles.songLoader}/>
             );
         }
-        LayoutAnimation.easeInEaseOut();
-        const isCurrentPlayed = group && index === group.currentPlayed;
         return (
             <SongLyrics
                 lyricsText={lyrics.text}
                 chordsColor={Colors.blue}
-                autoScroll={isCurrentPlayed && this.state.isAutoScroll}
+                autoScroll={this.state.isAutoScroll}
                 fontSizeScale={fontSizeScale}
                 showChords={chordsShown}
                 containerStyle={styles.lyricsContainer}
@@ -148,13 +155,13 @@ class SongPage extends Component {
                     </Text>
 
                     <View style={{flexDirection: 'row', marginTop: 10}}>
-                        <Text style={{color: Colors.light}}>{song.likesCount} </Text>
-                        <Icon
-                            type='material-community'
-                            name='heart-outline'
-                            size={16}
-                            color={Colors.light}
-                            onPress={this.likeSong.bind(this)}/>
+                        {/*<Text style={{color: Colors.light}}>{song.likesCount} </Text>*/}
+                        {/*<Icon*/}
+                        {/*type='material-community'*/}
+                        {/*name='heart-outline'*/}
+                        {/*size={16}*/}
+                        {/*color={Colors.light}*/}
+                        {/*onPress={this.likeSong.bind(this)}/>*/}
 
                         <Text style={{color: Colors.light, marginLeft: 10}}>{song.viewsCount} </Text>
                         <Icon
@@ -185,6 +192,7 @@ class SongPage extends Component {
         }
         return (
             <ViewPager
+                initialPage={Platform.OS === 'android' && this.props.group.currentPlayed}
                 keyboardShouldPersistTaps='handled'
                 style={styles.container}
                 ref={this.onSongsPagerReady.bind(this)}
@@ -282,7 +290,7 @@ class SongPage extends Component {
                 </View>
 
                 <RateAppDialog show={this.state.showRateAppDialog}/>
-                <KeepAwake />
+                <KeepAwake/>
             </View>
         );
     }
@@ -366,8 +374,6 @@ const songsControlButtonStyle = {
 const getAutoScrollButtonStyle = (isPlay) => ({
     type: 'entypo',
     name: isPlay ? 'select-arrows' : 'controller-paus',
-    //type: 'material-community',
-    //name: 'gesture-swipe-down',
     size: 28
 });
 

@@ -11,6 +11,7 @@ import SongPage from '../group/song'
 import Playlist from '../group/playlist';
 import AddSongs from '../group/addSongs';
 import GroupDetails from '../group/details';
+import EditProfile from '../group/editProfile';
 import InviteMember from '../group/inviteMember';
 import {showToastMessage} from '../../utils';
 import {GroupConfig} from '../../config';
@@ -40,6 +41,10 @@ export default class Root extends Component {
         if (groupLink) {
             this.setState({groupUid: groupLink.replace(GroupConfig.groupLinkPrefix, '')});
         }
+    }
+
+    onLoadGroup() {
+        this.setState({groupUid: null});
     }
 
     render() {
@@ -101,6 +106,12 @@ export default class Root extends Component {
 
                             <Scene
                                 backTitle='Back'
+                                key='editProfile'
+                                title='Edit Profile'
+                                component={EditProfile}/>
+
+                            <Scene
+                                backTitle='Back'
                                 key='inviteMember'
                                 title='Invite Member'
                                 component={InviteMember}/>
@@ -108,7 +119,7 @@ export default class Root extends Component {
                     </Scene>
                 </Router>
 
-                <LoadGroup uid={this.state.groupUid}/>
+                <LoadGroup uid={this.state.groupUid} onLoadGroup={this.onLoadGroup.bind(this)}/>
             </View>
         );
     }

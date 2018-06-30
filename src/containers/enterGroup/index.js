@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {TextInput, StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, Text, TextInput, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Button, Icon} from 'react-native-elements';
@@ -16,6 +16,10 @@ class EnterGroup extends Component {
         this.setState({pinCode: event.nativeEvent.text});
     }
 
+    onLoadGroup() {
+        this.setState({pinCode: null});
+    }
+
     render() {
         return (
             <View style={styles.container}>
@@ -30,13 +34,13 @@ class EnterGroup extends Component {
                     <Text style={styles.appName}>Sing Along</Text>
 
                     <TextInput
-                        style={styles.pinCodeInput}
                         placeholder='Enter Pin Code'
                         returnKeyType='go'
                         returnKeyLabel='go'
                         enablesReturnKeyAutomatically
+                        underlineColorAndroid='transparent'
                         onSubmitEditing={this.onSubmitPinCode.bind(this)}
-                        underlineColorAndroid='transparent'/>
+                        style={styles.pinCodeInput}/>
                 </View>
 
                 <Button
@@ -46,7 +50,7 @@ class EnterGroup extends Component {
                     buttonStyle={styles.openGroupButton}
                     onPress={() => Actions.createGroup()}/>
 
-                <LoadGroup pinCode={this.state.pinCode}/>
+                <LoadGroup pinCode={this.state.pinCode} onLoadGroup={this.onLoadGroup.bind(this)}/>
             </View>
         );
     }

@@ -6,7 +6,7 @@ import {ViewPager} from 'rn-viewpager';
 import {changeCreator, changeName, changeSongs} from '../../../store/groupCreation/actions';
 import {createGroup} from '../../../store/group/actions';
 import SearchSong from '../../search/index';
-import {EditGroupProperty} from '../editGroupProperty';
+import {EditProperty} from '../../../components';
 import {showToastMessage} from '../../../utils/index';
 import {setActionBarRightButton} from '../../../utils';
 
@@ -85,7 +85,7 @@ class CreateGroup extends Component {
 
             case CREATE_GROUP_STEPS.ENTER_GROUP_NAME:
                 return (
-                    <EditGroupProperty
+                    <EditProperty
                         value={this.props.name}
                         placeholder='Enter group name'
                         groupSongs={this.props.songs}
@@ -94,7 +94,7 @@ class CreateGroup extends Component {
 
             case CREATE_GROUP_STEPS.ENTER_NICKNAME:
                 return (
-                    <EditGroupProperty
+                    <EditProperty
                         value={this.props.creator}
                         placeholder='Enter your nickname'
                         groupSongs={this.props.songs}

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {UIManager, Platform, I18nManager, View} from 'react-native';
-import {createStore, applyMiddleware} from 'redux'
+import {I18nManager, Platform, UIManager, View} from 'react-native';
+import {applyMiddleware, createStore} from 'redux'
 import {Provider} from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import firebase from 'firebase';
@@ -30,14 +30,16 @@ export default class App extends Component {
     }
 
     componentWillMount() {
-        firebase.initializeApp({
-            apiKey: 'AIzaSyB36Axani6trF_NlA7ZgJdZpky6DT7199c',
-            authDomain: 'singalong-6aaf5.firebaseapp.com',
-            databaseURL: 'https://singalong-6aaf5.firebaseio.com',
-            projectId: 'singalong-6aaf5',
-            storageBucket: '',
-            messagingSenderId: '1090194417681'
-        });
+        if (firebase.apps.length === 0) {
+            firebase.initializeApp({
+                apiKey: 'AIzaSyB36Axani6trF_NlA7ZgJdZpky6DT7199c',
+                authDomain: 'singalong-6aaf5.firebaseapp.com',
+                databaseURL: 'https://singalong-6aaf5.firebaseio.com',
+                projectId: 'singalong-6aaf5',
+                storageBucket: '',
+                messagingSenderId: '1090194417681'
+            });
+        }
         loadAppState(state => {
             const store = createStore(rootReducer, state, applyMiddleware(ReduxThunk));
             store.subscribe(throttle(() => saveAppState(store.getState()), 1000));

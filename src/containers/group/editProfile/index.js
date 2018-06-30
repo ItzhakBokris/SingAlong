@@ -2,50 +2,43 @@ import React, {Component} from 'react';
 import {StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
-import {clearGroup, joinToGroup} from '../../../store/group/actions';
-import {EditProperty} from '../../../components';
+import {updateGroupMember} from '../../../store/group/actions';
 import {showToastMessage} from '../../../utils/index';
-import {changeNickname} from '../../../store/groupJoining/actions';
 import {setActionBarRightButton} from '../../../utils';
+import {changeNickname} from '../../../store/profileUpdating/actions';
+import {EditProperty} from '../../../components';
 
-class JoinGroup extends Component {
+class EditProfile extends Component {
 
     state = {
-        isJoining: false
+        isUpdating: false
     };
 
     componentWillMount() {
-        setActionBarRightButton('Join', 'MaterialIcons', 'check', this.onNextPress.bind(this));
-        Actions.refresh({
-            onBack: () => {
-                this.props.clearGroup(this.props.group);
-                Actions.pop();
-            },
-            title: 'Join to ' + this.props.group.name
-        });
+        setActionBarRightButton('Update', 'MaterialIcons', 'check', this.onUpdatePress.bind(this));
     }
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.isRequested !== this.props.isRequested && !nextProps.isRequested) {
             if (!nextProps.error) {
-                Actions.main({type: 'reset'});
+                Actions.pop();
             } else {
                 showToastMessage('Something went wrong please try again');
-                this.setState({isJoining: false});
+                this.setState({isUpdating: false});
             }
         }
     }
 
-    onNextPress() {
-        if (!this.state.isJoining) {
-            const {nickname, group, joinToGroup} = this.props;
+    onUpdatePress() {
+        if (!this.state.isUpdating) {
+            const {nickname, currentNickname, group, updateGroupMember} = this.props;
             if (!nickname) {
                 showToastMessage('Please provide your nickname');
-            } else if (group.members && group.members.indexOf(nickname) >= 0) {
+            } else if (group.members && group.members.indexOf(nickname) >= 0 && nickname !== currentNickname) {
                 showToastMessage('A user with this nickname already exists');
             } else {
-                this.setState({isJoining: true});
-                joinToGroup(group, nickname);
+                this.setState({isUpdating: true});
+                updateGroupMember(group, currentNickname, nickname);
             }
         }
     }
@@ -69,6 +62,10 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = (state) => ({...state.groupData, ...state.groupJoiningData});
+const mapStateToProps = (state) => ({
+    ...state.groupData,
+    ...state.profileUpdatingData,
+    currentNickname: state.userData.nickname
+});
 
-export default connect(mapStateToProps, {changeNickname, joinToGroup, clearGroup})(JoinGroup);
+export default connect(mapStateToProps, {changeNickname, updateGroupMember})(EditProfile);
