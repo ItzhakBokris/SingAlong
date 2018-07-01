@@ -184,6 +184,13 @@ class SongPage extends Component {
         }
     }
 
+    getInitialPage() {
+        if (Platform.OS === 'android' && this.props.group) {
+            return this.props.group.currentPlayed;
+        }
+        return null;
+    }
+
     renderGroupSongsPager() {
         if (this.props.groupSongs.length === 0 && this.props.isRequested) {
             return (
@@ -192,7 +199,7 @@ class SongPage extends Component {
         }
         return (
             <ViewPager
-                initialPage={Platform.OS === 'android' && this.props.group.currentPlayed}
+                initialPage={this.getInitialPage()}
                 keyboardShouldPersistTaps='handled'
                 style={styles.container}
                 ref={this.onSongsPagerReady.bind(this)}
