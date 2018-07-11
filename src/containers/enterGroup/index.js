@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, TextInput, View} from 'react-native';
+import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Button, Icon} from 'react-native-elements';
@@ -24,12 +24,9 @@ class EnterGroup extends Component {
         return (
             <View style={styles.container}>
                 <View style={styles.content}>
-                    <View style={styles.logoContainer}>
-                        <Icon
-                            size={102}
-                            name='headset'
-                            color={Colors.primary}/>
-                    </View>
+                    <Image
+                        style={styles.appLogo}
+                        source={require('../../../assets/appLogo.png')}/>
 
                     <Text style={styles.appName}>Sing Along</Text>
 
@@ -66,20 +63,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
+    appLogo: {
+        resizeMode: 'contain',
+        height: 150
+    },
     appName: {
         textAlign: 'center',
         color: 'white',
-        marginTop: 10,
+        marginTop: 15,
         fontSize: 28
-    },
-    logoContainer: {
-        backgroundColor: 'white',
-        width: 120,
-        height: 120,
-        paddingTop: 10,
-        borderRadius: 60,
-        alignItems: 'center',
-        justifyContent: 'center'
     },
     pinCodeInput: {
         backgroundColor: 'white',

@@ -17,10 +17,7 @@ class JoinGroup extends Component {
     componentWillMount() {
         setActionBarRightButton('Join', 'MaterialIcons', 'check', this.onNextPress.bind(this));
         Actions.refresh({
-            onBack: () => {
-                this.props.clearGroup(this.props.group);
-                Actions.pop();
-            },
+            onBack: this.onBackPress.bind(this),
             title: 'Join to ' + this.props.group.name
         });
     }
@@ -48,6 +45,11 @@ class JoinGroup extends Component {
                 joinToGroup(group, nickname);
             }
         }
+    }
+
+    onBackPress() {
+        this.props.clearGroup(this.props.group);
+        Actions.pop();
     }
 
     render() {

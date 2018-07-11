@@ -45,10 +45,10 @@ class LoadGroup extends Component {
     }
 
     tryLoadGroup(props) {
-        if (props.pinCode) {
+        if (props.pinCode && props.pinCode !== props.group.pinCode) {
             props.fetchGroupByPinCode(props.pinCode);
             this.setState({isLoading: true});
-        } else if (props.uid) {
+        } else if (props.uid && props.uid !== props.group.uid) {
             props.fetchGroupByUid(props.uid);
             this.setState({isLoading: true});
         }

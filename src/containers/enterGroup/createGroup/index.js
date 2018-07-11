@@ -18,6 +18,7 @@ class CreateGroup extends Component {
 
     componentWillMount() {
         setActionBarRightButton('Next', 'MaterialIcons', 'check', this.onNextPress.bind(this));
+        Actions.refresh({onBack: this.onBackPress.bind(this)});
     }
 
     componentWillReceiveProps(nextProps) {

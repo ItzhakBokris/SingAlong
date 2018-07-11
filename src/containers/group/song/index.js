@@ -123,7 +123,22 @@ class SongPage extends Component {
         const {lyricsMap, group, fontSizeScale, chordsShown} = this.props;
         const lyrics = lyricsMap[song.lyrics];
         const isCurrentPlayed = group && index === group.currentPlayed;
-        LayoutAnimation.easeInEaseOut();
+
+        if (Platform.OS === 'ios') {
+            LayoutAnimation.easeInEaseOut();
+        } else {
+            LayoutAnimation.configureNext({
+                duration: 300,
+                create: {
+                    type: LayoutAnimation.Types.easeInEaseOut,
+                    property: LayoutAnimation.Properties.opacity,
+                },
+                update: {
+                    type: LayoutAnimation.Types.easeInEaseOut,
+                    property: LayoutAnimation.Properties.opacity
+                }
+            });
+        }
         if (!this.state.showLyrics || !isCurrentPlayed || !lyrics || !lyrics.text) {
             return (
                 <ActivityIndicator style={styles.songLoader}/>
