@@ -62,7 +62,7 @@ export class SongLyrics extends Component {
         this.isRtlLyrics = /[א-ת]/g.test(lyricsText);
         const space = this.isRtlLyrics && Platform.OS === 'ios' ? ' ' : ' ';
         const chordRegex = /(\[[^\]]*\])+/g;
-        const paragraphs = lyricsText.split(/[\n\r]{2,}/);
+        const paragraphs = lyricsText.split(/[\n\r]{2,}/).filter(paragraph => !!paragraph.trim());
         this.lyricsParts = paragraphs.map(paragraph => {
             const sentences = paragraph.split(/[\n\r]/);
             return sentences.map(sentence => {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     word: {
-        color: Colors.lighterGrey
+        color: 'white'
     },
     wordWithChords: {
         flexDirection: 'row'

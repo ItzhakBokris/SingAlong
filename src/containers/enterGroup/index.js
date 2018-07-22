@@ -26,7 +26,7 @@ class EnterGroup extends Component {
                 <View style={styles.content}>
                     <Image
                         style={styles.appLogo}
-                        source={require('../../../assets/appLogo.png')}/>
+                        source={require('../../../assets/appLogoTransparent.png')}/>
 
                     <Text style={styles.appName}>Sing Along</Text>
 

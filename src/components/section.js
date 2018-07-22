@@ -5,7 +5,11 @@ import PropTypes from 'prop-types';
 export class Section extends Component {
 
     static propTypes = {
-        containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number])
+        containerStyle: PropTypes.oneOfType([
+            PropTypes.object,
+            PropTypes.number,
+            PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.object, PropTypes.number]))
+        ])
     };
 
     static defaultProps = {

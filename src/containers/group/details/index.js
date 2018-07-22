@@ -71,6 +71,12 @@ class GroupDetails extends Component {
                             onPress={() => Actions.inviteMember()}
                             leftIcon={{name: 'person-add'}}
                             {...Styles.listActionItem}/>
+
+                        <ListItem
+                            title='About'
+                            onPress={() => Actions.about()}
+                            leftIcon={{name: 'information-outline', type: 'material-community'}}
+                            {...Styles.listActionItem}/>
                     </Section>
 
                     {this.renderMembersSection()}

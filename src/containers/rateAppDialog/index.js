@@ -11,17 +11,20 @@ import PropTypes from 'prop-types';
 class RateAppDialog extends Component {
 
     static propTypes = {
-        show: PropTypes.bool
+        show: PropTypes.bool,
+        onDismiss: PropTypes.func
     };
 
     static defaultProps = {
-        show: false
+        show: false,
+        onDismiss: () => null
     };
 
     state = {
         isDialogVisible: true,
         rating: null,
-        feedback: ''
+        feedback: '',
+        rateSuccess: false
     };
 
     componentWillMount() {
@@ -31,6 +34,8 @@ class RateAppDialog extends Component {
     componentWillReceiveProps(nextProps) {
         if (nextProps.error) {
             showToastMessage('Something went wrong please try again');
+        } else if (!nextProps.isRequested && this.props.isRequested) {
+            this.setState({rateSuccess: true});
         }
         if (nextProps.show !== this.props.show) {
             this.setState({isDialogVisible: nextProps.show});
@@ -47,6 +52,12 @@ class RateAppDialog extends Component {
 
     closeDialog() {
         this.setState({isDialogVisible: false});
+    }
+
+    onDismiss() {
+        this.props.decreaseStepsBeforeRate();
+        this.props.onDismiss();
+        this.setState({rating: null, feedback: null, rateSuccess: false});
     }
 
     submit() {
@@ -123,7 +134,7 @@ class RateAppDialog extends Component {
     }
 
     renderDialogContent() {
-        if (!this.props.rating && !this.props.feedback) {
+        if (!this.state.rateSuccess) {
             return this.renderBeforeRatingContent();
         } else {
             return this.renderAfterRatingContent();
@@ -135,7 +146,7 @@ class RateAppDialog extends Component {
             <Dialog
                 show={this.state.isDialogVisible}
                 contentContainerStyle={styles.contentContainerStyle}
-                onDismiss={() => this.props.decreaseStepsBeforeRate()}>
+                onDismiss={this.onDismiss.bind(this)}>
 
                 {this.renderDialogContent()}
                 {this.renderLoader()}

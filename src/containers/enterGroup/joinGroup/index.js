@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {BackHandler, StyleSheet, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {clearGroup, joinToGroup} from '../../../store/group/actions';
@@ -20,6 +20,14 @@ class JoinGroup extends Component {
             onBack: this.onBackPress.bind(this),
             title: 'Join to ' + this.props.group.name
         });
+    }
+
+    componentDidMount() {
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    }
+
+    componentWillUnmount() {
+        this.backHandler.remove();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -50,6 +58,7 @@ class JoinGroup extends Component {
     onBackPress() {
         this.props.clearGroup(this.props.group);
         Actions.pop();
+        return true;
     }
 
     render() {

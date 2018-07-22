@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
+import {Modal, StyleSheet, TouchableWithoutFeedback, View, Platform} from 'react-native';
 import PropTypes from 'prop-types';
 
 export class Dialog extends Component {
@@ -31,6 +31,12 @@ export class Dialog extends Component {
         }
     }
 
+    componentWillUpdate(nextProps, nextState) {
+        if (!nextState.isModalVisible && this.state.isModalVisible) {
+            this.props.onDismiss();
+        }
+    }
+
     onRequestClose(): void {
         if (this.props.closable) {
             this.setState({isModalVisible: false});
@@ -42,7 +48,6 @@ export class Dialog extends Component {
             <Modal animationType="fade"
                    transparent={true}
                    visible={this.state.isModalVisible}
-                   onDismiss={this.props.onDismiss}
                    onRequestClose={this.onRequestClose.bind(this)}>
 
                 <TouchableWithoutFeedback onPress={this.onRequestClose.bind(this)}>

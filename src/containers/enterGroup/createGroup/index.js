@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, BackHandler} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {ViewPager} from 'rn-viewpager';
@@ -19,6 +19,14 @@ class CreateGroup extends Component {
     componentWillMount() {
         setActionBarRightButton('Next', 'MaterialIcons', 'check', this.onNextPress.bind(this));
         Actions.refresh({onBack: this.onBackPress.bind(this)});
+    }
+
+    componentDidMount() {
+        this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.onBackPress.bind(this));
+    }
+
+    componentWillUnmount() {
+        this.backHandler.remove();
     }
 
     componentWillReceiveProps(nextProps) {
@@ -41,6 +49,7 @@ class CreateGroup extends Component {
         } else {
             Actions.pop();
         }
+        return true;
     }
 
     onNextPress() {

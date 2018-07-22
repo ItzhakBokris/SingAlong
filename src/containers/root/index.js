@@ -15,6 +15,7 @@ import EditProfile from '../group/editProfile';
 import InviteMember from '../group/inviteMember';
 import {showToastMessage} from '../../utils';
 import {GroupConfig} from '../../config';
+import {About} from '../about';
 
 export default class Root extends Component {
 
@@ -103,6 +104,12 @@ export default class Root extends Component {
                                 backTitle='Back'
                                 key='groupDetails'
                                 component={GroupDetails}/>
+
+                            <Scene
+                                backTitle='Back'
+                                key='about'
+                                title='About'
+                                component={About}/>
 
                             <Scene
                                 backTitle='Back'

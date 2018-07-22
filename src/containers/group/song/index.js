@@ -38,7 +38,7 @@ class SongPage extends Component {
         if (nextProps.group !== this.props.group || nextProps.groupSongs !== this.props.groupSongs) {
             this.goToCurrentSong(nextProps, true);
         }
-        if (nextProps.stepsBeforeRate !== this.props.stepsBeforeRate && !nextProps.rating && !nextProps.feedback) {
+        if (nextProps.stepsBeforeRate !== this.props.stepsBeforeRate && !nextProps.isRated) {
             this.setState({showRateAppDialog: nextProps.stepsBeforeRate === 0});
         }
     }
@@ -116,7 +116,7 @@ class SongPage extends Component {
         //         return {uri: coverImage};
         //     }
         // }
-        return require('../../../../assets/defaultCover.jpg')
+        return require('../../../../assets/defaultCover.jpeg')
     }
 
     renderLyrics(song, index) {
@@ -251,7 +251,7 @@ class SongPage extends Component {
         return (
             <View style={styles.sideButtons}>
                 <Icon
-                    name='account-circle'
+                    name='account-settings-variant'
                     type='material-community'
                     onPress={() => Actions.groupDetails()}
                     containerStyle={styles.sideButtonContainer}
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     },
     foreground: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.6)'
+        backgroundColor: 'rgba(0,0,0,0.5)'
     },
     songLoader: {
         marginTop: 50
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
         marginTop: 4
     },
     lyricsContainer: {
-        paddingVertical: 10,
+        paddingVertical: 30,
         paddingHorizontal: 50
     },
     footerButtons: {

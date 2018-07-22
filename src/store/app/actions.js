@@ -17,7 +17,7 @@ export const rateApp = (rating, feedback, nickname) => {
                 os: `${Platform.OS} (${Platform.Version})`,
                 version: AppConfig.version
             })
-            .then(() => dispatch({type: APP_RATE_SUCCESS, payload: {rating, feedback}}))
+            .then(() => dispatch({type: APP_RATE_SUCCESS}))
             .catch(error => dispatch({type: APP_RATE_FAILURE, payload: error.message}));
     };
 };
