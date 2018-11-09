@@ -1,4 +1,4 @@
-package com.singalong;
+package com.singwithusapp;
 
 import com.facebook.react.ReactActivity;
 

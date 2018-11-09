@@ -13,7 +13,6 @@ import {SongLyrics} from '../../../components';
 import {fetchGroup} from '../../../store/group/actions';
 import RateAppDialog from '../../rateAppDialog'
 
-//const FONT_SIZE_SCALES = [1, 1.1, 1.25, 1.5, 1.75, 2, 0.5, 0.67, 0.75, 0.8, 0.9];
 const FONT_SIZE_SCALES = [1, 1.5, 2, 0.5, 0.75];
 
 class SongPage extends Component {
@@ -131,7 +130,7 @@ class SongPage extends Component {
                 duration: 300,
                 create: {
                     type: LayoutAnimation.Types.easeInEaseOut,
-                    property: LayoutAnimation.Properties.opacity,
+                    property: LayoutAnimation.Properties.opacity
                 },
                 update: {
                     type: LayoutAnimation.Types.easeInEaseOut,
@@ -152,8 +151,7 @@ class SongPage extends Component {
                 fontSizeScale={fontSizeScale}
                 showChords={chordsShown}
                 containerStyle={styles.lyricsContainer}
-                onUserScroll={this.stopAutoScroll.bind(this)}
-                onEndReached={this.stopAutoScroll.bind(this)}/>
+                onEndReached={() => this.stopAutoScroll()}/>
         );
     }
 
@@ -206,6 +204,18 @@ class SongPage extends Component {
         return null;
     }
 
+    /**
+     * WorkAround: When the number of group-songs is increased, don't change the number of pages as long as the
+     * current-played song hasn't changed, as the view-pager re-create the page components when their count changed.
+     */
+    getSongPages() {
+        let pages = this.props.groupSongs.map((song, index) => this.renderSong(song, index));
+        if (this.pager && this.props.group && this.props.group .currentPlayed === this.pager.state.page) {
+            return pages.slice(0, this.pager.props.children.length);
+        }
+        return pages;
+    }
+
     renderGroupSongsPager() {
         if (this.props.groupSongs.length === 0 && this.props.isRequested) {
             return (
@@ -217,11 +227,11 @@ class SongPage extends Component {
                 initialPage={this.getInitialPage()}
                 keyboardShouldPersistTaps='handled'
                 style={styles.container}
-                ref={this.onSongsPagerReady.bind(this)}
+                ref={component => this.onSongsPagerReady(component)}
                 horizontalScroll={false}
                 scrollEnabled={false}>
 
-                {this.props.groupSongs.map(this.renderSong.bind(this))}
+                {this.getSongPages()}
             </ViewPager>
         );
     }
@@ -231,17 +241,17 @@ class SongPage extends Component {
             <View style={styles.songsControlButtons}>
                 {this.props.isAdmin && (<Icon
                     name='step-backward'
-                    onPress={this.previousSong.bind(this)}
+                    onPress={() => this.previousSong()}
                     {...songsControlButtonStyle}/>)}
 
                 <Icon
-                    onPress={this.toggleAutoScroll.bind(this)}
+                    onPress={() => this.toggleAutoScroll()}
                     {...songsControlButtonStyle}
                     {...getAutoScrollButtonStyle(!this.state.isAutoScroll)}/>
 
                 {this.props.isAdmin && (<Icon
                     name='step-forward'
-                    onPress={this.nextSong.bind(this)}
+                    onPress={() => this.nextSong()}
                     {...songsControlButtonStyle}/>)}
             </View>
         );
@@ -260,14 +270,14 @@ class SongPage extends Component {
                 <Icon
                     name={'music-note' + (this.props.chordsShown ? '-off' : '')}
                     type='material-community'
-                    onPress={this.showHideChords.bind(this)}
+                    onPress={() => this.showHideChords()}
                     containerStyle={styles.sideButtonContainer}
                     {...iconButtonStyle}/>
 
                 <Icon
                     name='format-size'
                     type='material-community'
-                    onPress={this.changeFontSizeScale.bind(this)}
+                    onPress={() => this.changeFontSizeScale()}
                     containerStyle={styles.sideButtonContainer}
                     {...iconButtonStyle}/>
             </View>

@@ -24,7 +24,7 @@ class GroupDetails extends Component {
     }
 
     leaveGroup() {
-        this.props.leaveGroup(this.props.group, this.props.nickname);
+        this.props.leaveGroup(this.props.group, this.props.nickname, true);
         Actions.onBoarding({type: 'reset'});
     }
 

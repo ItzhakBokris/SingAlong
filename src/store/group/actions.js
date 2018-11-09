@@ -88,15 +88,18 @@ export const updateGroupMember = (group, nickname, newNickname) => {
     };
 };
 
-export const leaveGroup = (group, nickname) => {
+export const leaveGroup = (group, nickname, toClearGroup) => {
     return (dispatch) => {
         dispatch({type: GROUP_LEAVE_REQUEST});
         const members = group.members.filter(member => member !== nickname);
+        firebase.database().ref(`/groups/${group.key}`).off('value');
         firebase.database().ref(`/groups/${group.key}`)
             .update({members, admin: group.admin !== nickname ? group.admin : members[0] || ''})
             .then(() => {
                 dispatch({type: GROUP_LEAVE_SUCCESS});
-                dispatch(clearGroup(group));
+                if (toClearGroup) {
+                    dispatch(clearGroup(group));
+                }
             })
             .catch(error => dispatch({type: GROUP_LEAVE_FAILURE, payload: error.message}));
     };

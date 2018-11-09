@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {Actions} from 'react-native-router-flux';
-import {fetchGroupByPinCode, fetchGroupByUid} from '../../../store/group/actions';
+import {fetchGroupByPinCode, fetchGroupByUid, leaveGroup} from '../../../store/group/actions';
 import {showToastMessage} from '../../../utils';
 import {Loader} from '../../../components/loader';
 
@@ -33,6 +33,7 @@ class LoadGroup extends Component {
             if (!nextProps.error && nextProps.group) {
                 this.props.onLoadGroup(nextProps.group);
                 if (this.props.group) {
+                    this.props.leaveGroup(this.props.group, this.props.nickname);
                     Actions.onBoarding({type: 'reset'});
                 }
                 Actions.joinGroup();
@@ -64,6 +65,6 @@ class LoadGroup extends Component {
     }
 }
 
-const mapStateToProps = (state) => ({...state.groupData});
+const mapStateToProps = (state) => ({...state.groupData, ...state.userData});
 
-export default connect(mapStateToProps, {fetchGroupByPinCode, fetchGroupByUid})(LoadGroup);
+export default connect(mapStateToProps, {fetchGroupByPinCode, fetchGroupByUid, leaveGroup})(LoadGroup);

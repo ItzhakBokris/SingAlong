@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
 import {Dimensions, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
-import {Colors} from '../styles';
 
 const FONT_SIZE = Platform.OS === 'ios' ? 20 : 18;
+const CHORD_FONT_SIZE = 14;
+const CHORDS_LINE_HEIGHT = 45;
 const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 0.5 : 0.25;
 const AUTO_SCROLL_DELTA_TIME = 10;
+const HEBREW_CHARS_REQUIRED_PROPORTION_FOR_RTL = 0.25;
 
 export class SongLyrics extends Component {
 
@@ -16,7 +18,6 @@ export class SongLyrics extends Component {
         chordsColor: PropTypes.string,
         containerStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
         autoScroll: PropTypes.bool,
-        onUserScroll: PropTypes.func,
         onEndReached: PropTypes.func
     };
 
@@ -26,16 +27,23 @@ export class SongLyrics extends Component {
         chordsColor: 'dodgerblue',
         containerStyle: {},
         autoScroll: false,
-        onUserScroll: () => null,
         onEndReached: () => null
     };
 
-    scrollTop = 0;
-    autoScrollDeltaOffset = AUTO_SCROLL_DELTA_OFFSET;
-    lyricsScrollViewHeight = Dimensions.get('window').height;
-    lyricsContainerHeight = this.lyricsScrollViewHeight;
-    isRtlLyrics = false;
-    lyricsParts = [];
+    state = {
+        scrollTop: 0,
+        autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET,
+        lyricsScrollViewHeight: Dimensions.get('window').height,
+        lyricsContainerHeight: Dimensions.get('window').height,
+        lyricsParts: [],
+        isRtlLyrics: false,
+        autoScrollEnabled: true
+    };
+
+    shouldComponentUpdate(nextProps) {
+        // Changing of all the current state properties don't need to re-render the component.
+        return nextProps !== this.props;
+    }
 
     componentWillMount() {
         this.fetchLyricsParts(this.props.lyricsText);
@@ -54,53 +62,74 @@ export class SongLyrics extends Component {
     }
 
     updateScrolling(newFontSizeScale) {
-        this.scrollTop = this.scrollTop * newFontSizeScale / this.props.fontSizeScale;
-        this.autoScrollDeltaOffset = AUTO_SCROLL_DELTA_OFFSET * newFontSizeScale;
+        this.setState({
+            scrollTop: this.state.scrollTop * newFontSizeScale / this.props.fontSizeScale,
+            autoScrollDeltaOffset: AUTO_SCROLL_DELTA_OFFSET * newFontSizeScale
+        });
+    }
+
+    isHebrew(text) {
+        text = text.replace(/[^a-zא-ת]/ig, '');
+        const result = text.match(/[א-ת]/g) || '';
+        return result.length / text.length > HEBREW_CHARS_REQUIRED_PROPORTION_FOR_RTL;
     }
 
     fetchLyricsParts(lyricsText) {
-        this.isRtlLyrics = /[א-ת]/g.test(lyricsText);
-        const space = this.isRtlLyrics && Platform.OS === 'ios' ? ' ' : ' ';
         const chordRegex = /(\[[^\]]*\])+/g;
+        const isRtlLyrics = this.isHebrew(lyricsText.replace(chordRegex, ''));
         const paragraphs = lyricsText.split(/[\n\r]{2,}/).filter(paragraph => !!paragraph.trim());
-        this.lyricsParts = paragraphs.map(paragraph => {
+        const lyricsParts = paragraphs.map(paragraph => {
             const sentences = paragraph.split(/[\n\r]/);
             return sentences.map(sentence => {
-                const words = sentence.split(/[  ]+/);
-                return words.map((word, wordIndex) => {
-                    const wordParts = [];
+                let words = sentence.split(/[  ]+/).map(word => {
+                    const parts = [];
                     let position = 0;
                     let regexResult;
                     while (regexResult = chordRegex.exec(word)) {
                         if (regexResult.index > 0) {
                             const text = word.substring(position, regexResult.index);
-                            wordParts.push({type: 'text', text});
+                            parts.push({type: 'text', text});
                             position = regexResult.index;
                         }
-                        const text = regexResult[0].replace(/[\[\]]/g, ' ').trim();
-                        wordParts.push({type: 'chord', text});
+                        let text = regexResult[0].replace(/[\[\]]/g, ' ').trim();
+                        parts.push({type: 'chord', text});
                         position += regexResult[0].length;
                     }
                     if (position < word.length) {
                         const text = word.substring(position, word.length);
-                        wordParts.push({type: 'text', text});
+                        parts.push({type: 'text', text});
                     }
-                    const textParts = wordParts.filter(wordPart => wordPart.type === 'text');
-                    if (textParts.length > 0) {
-                        textParts[textParts.length - 1].text += (wordIndex < words.length - 1 ? space : '');
-                    }
-                    return wordParts;
+                    const haveText = parts.some(part => part.type === 'text');
+                    const haveChords = parts.some(part => part.type === 'chord');
+                    const isRtl = parts.some(part => /[א-ת]/.test(part.text));
+                    return {parts, haveText, haveChords, isRtl};
                 });
+                const haveText = words.some(word => word.haveText);
+                const haveChords = words.some(word => word.haveChords);
+                const isRtl = words.some(word => word.isRtl);
+                if (isRtlLyrics && !haveText) {
+                    words = words.reverse();
+                }
+                return {words, haveText, haveChords, isRtl};
             });
         });
+        this.setState({lyricsParts, isRtlLyrics})
     }
 
     animateScrollFrame() {
         const startFrameTime = new Date().getTime();
-        if (this.scrollView && this.lyricsContainerHeight > this.lyricsScrollViewHeight) {
-            const scrollTop = this.scrollTop + this.autoScrollDeltaOffset;
-            if (scrollTop + this.lyricsScrollViewHeight <= this.lyricsContainerHeight) {
-                this.scrollView.scrollTo({y: scrollTop, animated: false});
+        const {
+            autoScrollEnabled,
+            lyricsContainerHeight,
+            lyricsScrollViewHeight,
+            scrollTop,
+            autoScrollDeltaOffset
+        } = this.state;
+
+        if (autoScrollEnabled && this.scrollView && lyricsContainerHeight > lyricsScrollViewHeight) {
+            const newScrollTop = scrollTop + autoScrollDeltaOffset;
+            if (newScrollTop + lyricsScrollViewHeight <= lyricsContainerHeight) {
+                this.scrollView.scrollTo({y: newScrollTop, animated: false});
             } else {
                 this.props.onEndReached();
             }
@@ -110,78 +139,71 @@ export class SongLyrics extends Component {
         setTimeout(() => this.props.autoScroll && this.animateScrollFrame(), timeout);
     }
 
-    getSentenceStyle(space) {
-        return [styles.sentence, this.isRtlLyrics && styles.rtlDirection, {
-            marginTop: space ? 45 * this.props.fontSizeScale : 0
+    getSentenceStyle(space, isRtl) {
+        return [styles.sentence, isRtl && styles.rtlDirection, {
+            marginTop: space ? CHORDS_LINE_HEIGHT * this.props.fontSizeScale : 0
         }];
     }
 
-    getChordContainerStyle() {
-        return this.isRtlLyrics && styles.rtlDirection;
+    getChordContainerStyle(isRtl) {
+        return isRtl && styles.rtlDirection;
     }
 
-    getWordWithChordsStyle() {
-        return [styles.wordWithChords, this.isRtlLyrics && styles.rtlDirection];
+    getWordStyle(isRtl) {
+        return [styles.word, isRtl && styles.rtlDirection, {
+            marginRight: (FONT_SIZE / 6) * this.props.fontSizeScale,
+            marginLeft: (FONT_SIZE / 6) * this.props.fontSizeScale
+        }];
     }
 
-    getWordStyle(isTextLine) {
-        return [styles.word, {
+    getWordTextPartStyle(isTextLine) {
+        return [styles.wordTextPart, {
             fontSize: FONT_SIZE * this.props.fontSizeScale,
             fontWeight: isTextLine ? 'bold' : 'normal',
-            lineHeight: (isTextLine ? FONT_SIZE : 45) * this.props.fontSizeScale
+            lineHeight: (isTextLine ? FONT_SIZE : CHORDS_LINE_HEIGHT) * this.props.fontSizeScale
         }];
     }
 
-    getChordStyle() {
-        return [styles.chord, {
-            fontSize: 14 * this.props.fontSizeScale,
+    getWordChordPartStyle(isChordWord) {
+        return [styles.wordChordPart, {
+            fontSize: CHORD_FONT_SIZE * this.props.fontSizeScale,
+            position: !isChordWord ? 'absolute' : 'relative',
             top: -3 * this.props.fontSizeScale,
-            color: this.props.chordsColor
-        }];
-    }
-
-    getChordsLineStyle() {
-        return [styles.lineChord, {
-            fontSize: 14 * this.props.fontSizeScale,
             lineHeight: FONT_SIZE * this.props.fontSizeScale,
             color: this.props.chordsColor
         }];
     }
 
-    createLyricsWordParts(word, wordIndex, isTextLine, isChordsLine) {
-        return word.map((wordPart, partIndex) => {
-            if (isTextLine || wordPart.type === 'text') {
+    getChordContainerStyle(isRtl) {
+        return isRtl && styles.rtlDirection;
+    }
+
+    createLyricsWordParts(word, wordIndex, isTextLine) {
+        return word.parts.map((wordPart, partIndex) => {
+            if (wordPart.type === 'text') {
                 return (
-                    <Text key={wordIndex + partIndex} style={this.getWordStyle(isTextLine)}>
+                    <Text key={wordIndex + partIndex} style={this.getWordTextPartStyle(isTextLine)}>
                         {wordPart.text}
                     </Text>
                 );
             }
             if (this.props.showChords) {
-                if (isChordsLine) {
-                    return (
-                        <Text key={wordIndex + partIndex} style={this.getChordsLineStyle()}>
+                return (
+                    <View key={wordIndex + partIndex} style={this.getChordContainerStyle(word.isRtl)}>
+                        <Text style={this.getWordChordPartStyle(!word.haveText)}>
                             {wordPart.text}
                         </Text>
-                    );
-                }
-                return (
-                    <View key={wordIndex + partIndex} style={this.getChordContainerStyle()}>
-                        <Text style={this.getChordStyle()}>{wordPart.text}</Text>
                     </View>
                 );
-           }
+            }
         });
     }
 
-    createLyricsWords(sentence, isTextLine, isChordsLine) {
-        return sentence.map((word, wordIndex) => {
-            const wordPartViews = this.createLyricsWordParts(word, wordIndex, isTextLine, isChordsLine);
-            if (wordPartViews.length === 1) {
-                return wordPartViews[0];
-            }
+    createLyricsWords(sentence) {
+        return sentence.words.map((word, wordIndex) => {
+            const wordPartViews = this.createLyricsWordParts(word, wordIndex, !sentence.haveChords);
             return (
-                <View key={wordIndex} style={this.getWordWithChordsStyle()}>
+                <View key={wordIndex} style={this.getWordStyle(word.isRtl)}>
                     {wordPartViews}
                 </View>
             );
@@ -190,16 +212,13 @@ export class SongLyrics extends Component {
 
     createLyricsSentences() {
         let keyIndex = 0;
-        return this.lyricsParts.map((paragraph, paragraphIndex) => {
+        return this.state.lyricsParts.map((paragraph, paragraphIndex) => {
             return paragraph.map((sentence, sentenceIndex) => {
-                const containsText = sentence.some(word => word.some(wordPart => wordPart.type === 'text'));
-                const containsChord = sentence.some(word => word.some(wordPart => wordPart.type === 'chord'));
-                const isTextLine = containsText && !containsChord;
-                const isChordsLine = containsChord && !containsText;
                 const space = sentenceIndex === 0 && paragraphIndex > 0;
+                const isRtl = sentence.isRtl || (!sentence.haveText && this.state.isRtlLyrics);
                 return (
-                    <View key={keyIndex++} style={this.getSentenceStyle(space)}>
-                        {this.createLyricsWords(sentence, isTextLine, isChordsLine)}
+                    <View key={keyIndex++} style={this.getSentenceStyle(space, isRtl)}>
+                        {this.createLyricsWords(sentence)}
                     </View>
                 )
             });
@@ -207,17 +226,21 @@ export class SongLyrics extends Component {
     }
 
     onScroll(event) {
-        this.scrollTop = event.nativeEvent.contentOffset.y;
+        this.setState({scrollTop: event.nativeEvent.contentOffset.y});
+    }
+
+    setAutoScrollEnabled(isEnabled) {
+        this.setState({autoScrollEnabled: isEnabled});
     }
 
     onScrollViewLayout(event) {
-        this.lyricsScrollViewHeight = event.nativeEvent.layout.height;
+        this.setState({lyricsScrollViewHeight: event.nativeEvent.layout.height});
     }
 
     onLyricsContainerLayout(event) {
-        this.lyricsContainerHeight = event.nativeEvent.layout.height;
+        this.setState({lyricsContainerHeight: event.nativeEvent.layout.height});
         if (this.scrollView) {
-            this.scrollView.scrollTo({y: this.scrollTop, animated: false});
+            this.scrollView.scrollTo({y: this.state.scrollTop, animated: false});
         }
     }
 
@@ -227,7 +250,10 @@ export class SongLyrics extends Component {
                 onScroll={this.onScroll.bind(this)}
                 onLayout={this.onScrollViewLayout.bind(this)}
                 ref={component => this.scrollView = component}
-                onScrollBeginDrag={this.props.onUserScroll}
+                onScrollBeginDrag={this.setAutoScrollEnabled.bind(this, false)}
+                onScrollEndDrag={this.setAutoScrollEnabled.bind(this, true)}
+                onMomentumScrollBegin={this.setAutoScrollEnabled.bind(this, false)}
+                onMomentumScrollEnd={this.setAutoScrollEnabled.bind(this, true)}
                 scrollEventThrottle={AUTO_SCROLL_DELTA_TIME}>
 
                 <View onLayout={this.onLyricsContainerLayout.bind(this)} style={this.props.containerStyle}>
@@ -245,17 +271,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     word: {
-        color: 'white'
-    },
-    wordWithChords: {
         flexDirection: 'row'
     },
-    chord: {
-        color: 'dodgerblue',
-        position: 'absolute',
-        fontWeight: 'bold'
+    wordTextPart: {
+        fontFamily: 'Arial',
+        color: 'white'
     },
-    lineChord: {
+    wordChordPart: {
+        fontFamily: 'Arial',
         color: 'dodgerblue',
         fontWeight: 'bold'
     },

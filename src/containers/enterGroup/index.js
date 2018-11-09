@@ -34,9 +34,10 @@ class EnterGroup extends Component {
                         placeholder='Enter Pin Code'
                         returnKeyType='go'
                         returnKeyLabel='go'
+                        keyboardType='numeric'
                         enablesReturnKeyAutomatically
                         underlineColorAndroid='transparent'
-                        onSubmitEditing={this.onSubmitPinCode.bind(this)}
+                        onSubmitEditing={event => this.onSubmitPinCode(event)}
                         style={styles.pinCodeInput}/>
                 </View>
 
@@ -47,7 +48,7 @@ class EnterGroup extends Component {
                     buttonStyle={styles.openGroupButton}
                     onPress={() => Actions.createGroup()}/>
 
-                <LoadGroup pinCode={this.state.pinCode} onLoadGroup={this.onLoadGroup.bind(this)}/>
+                <LoadGroup pinCode={this.state.pinCode} onLoadGroup={() => this.onLoadGroup()}/>
             </View>
         );
     }

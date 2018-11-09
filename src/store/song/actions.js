@@ -27,6 +27,13 @@ export const fetchGroupSongs = (group) => {
         return Promise.all(promises)
             .then(result => {
                 const songs = result.reduce((array, snapshot) => [...array, snapshotToObject(snapshot)], []);
+                for (let songIndex = songs.length; songIndex--;) {
+                    if (Object.keys(songs[songIndex]).length === 1) {
+                        // The song doesn't exists.
+                        songs.splice(songIndex, 1);
+                        dispatch(removeSongFromGroup(group, songIndex));
+                    }
+                }
                 dispatch({type: GROUP_SONGS_FETCH_SUCCESS, payload: songs});
             })
             .catch(error => dispatch({type: GROUP_SONGS_FETCH_FAILURE, payload: error.message}));
@@ -52,7 +59,7 @@ export const removeSongFromGroup = (group, songIndex) => {
         dispatch({type: GROUP_SONGS_REMOVE_REQUEST});
         const items = [...group.items];
         items.splice(songIndex, 1);
-        const currentPlayed = group.currentPlayed -= (songIndex <= group.currentPlayed ? 1 : 0);
+        const currentPlayed = group.currentPlayed -= (group.currentPlayed > 0 && songIndex <= group.currentPlayed ? 1 : 0);
         return firebase.database()
             .ref(`/groups/${group.key}`)
             .update({items, currentPlayed})
