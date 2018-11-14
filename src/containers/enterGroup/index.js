@@ -1,15 +1,17 @@
 import React, {Component} from 'react';
-import {Image, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Image, StyleSheet, Text, TextInput, TouchableHighlight, View} from 'react-native';
 import {connect} from 'react-redux';
 import {Actions} from 'react-native-router-flux';
 import {Button, Icon} from 'react-native-elements';
 import {Colors} from '../../styles';
 import LoadGroup from '../enterGroup/loadGroup'
+import {Dialog} from '../../components';
 
 class EnterGroup extends Component {
 
     state = {
-        pinCode: null
+        pinCode: null,
+        hintDialogOpened: false
     };
 
     onSubmitPinCode(event) {
@@ -18,6 +20,10 @@ class EnterGroup extends Component {
 
     onLoadGroup() {
         this.setState({pinCode: null});
+    }
+
+    toggleHintDialog() {
+        this.setState({hintDialogOpened: !this.state.hintDialogOpened});
     }
 
     render() {
@@ -30,15 +36,30 @@ class EnterGroup extends Component {
 
                     <Text style={styles.appName}>Sing Along</Text>
 
-                    <TextInput
-                        placeholder='Enter Pin Code'
-                        returnKeyType='go'
-                        returnKeyLabel='go'
-                        keyboardType='numeric'
-                        enablesReturnKeyAutomatically
-                        underlineColorAndroid='transparent'
-                        onSubmitEditing={event => this.onSubmitPinCode(event)}
-                        style={styles.pinCodeInput}/>
+                    <View style={styles.pinCodeSection}>
+                        <TextInput
+                            placeholder='Enter Pin Code'
+                            returnKeyType='go'
+                            returnKeyLabel='go'
+                            keyboardType='numeric'
+                            enablesReturnKeyAutomatically
+                            underlineColorAndroid='transparent'
+                            onSubmitEditing={event => this.onSubmitPinCode(event)}
+                            style={styles.pinCodeInput}/>
+
+                        <TouchableHighlight style={styles.infoButtonContainer} onPress={() => this.toggleHintDialog()}>
+                            <View style={styles.infoButton}>
+                                <Text style={styles.infoButtonText}>?</Text>
+                            </View>
+                        </TouchableHighlight>
+
+                        <Dialog show={this.state.hintDialogOpened} onDismiss={() => this.toggleHintDialog()}>
+                            <Text style={styles.pinCodeHint}>
+                                ניתן להצטרף לקבוצה באמצעות קוד PIN או באמצעות לחיצה חוזרת על קישור ההזמנה לקבוצה.
+                            </Text>
+                        </Dialog>
+                    </View>
+
                 </View>
 
                 <Button
@@ -72,7 +93,11 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: 'white',
         marginTop: 15,
-        fontSize: 28
+        fontSize: 28,
+        marginBottom: 30
+    },
+    pinCodeSection: {
+        justifyContent: 'center'
     },
     pinCodeInput: {
         backgroundColor: 'white',
@@ -80,7 +105,28 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 3,
         fontSize: 18,
-        marginTop: 30,
+        textAlign: 'center'
+    },
+    infoButtonContainer: {
+        position: 'absolute',
+        right: -40,
+        borderRadius: 15,
+        width: 30,
+        height: 30
+    },
+    infoButton: {
+        flex: 1,
+        backgroundColor: Colors.light,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    infoButtonText: {
+        color: Colors.dark,
+        fontWeight: 'bold',
+        fontSize: 24
+    },
+    pinCodeHint: {
         textAlign: 'center'
     },
     openGroupButton: {

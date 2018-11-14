@@ -4,8 +4,10 @@ import {Icon} from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import {Actions} from 'react-native-router-flux';
 import {Colors} from '../styles';
+
 export * from './appStorage';
 export * from './firebaseUtils'
+export * from './textUtils'
 
 export const showToastMessage = (message, duration) => Toast.show(message, {
     duration: duration || Toast.durations.SHORT,

@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Dimensions, Platform, ScrollView, StyleSheet, Text, View} from 'react-native';
 import PropTypes from 'prop-types';
+import {measureCharWidth, measureTextWidth} from '../utils';
 
 const FONT_SIZE = Platform.OS === 'ios' ? 20 : 18;
 const CHORD_FONT_SIZE = 14;
@@ -75,28 +76,38 @@ export class SongLyrics extends Component {
     }
 
     fetchLyricsParts(lyricsText) {
-        const chordRegex = /(\[[^\]]*\])+/g;
+        lyricsText = lyricsText.replace(/([\]])([\[])/g, '$1 $2'); // separates closed chords.
+        lyricsText = lyricsText.replace(/([^ \]])(\[[^\]]*\] )/g, '$1 $2'); // separates chords from end of words.
+        const chordRegex = /(\[[^\]]*\])/g;
         const isRtlLyrics = this.isHebrew(lyricsText.replace(chordRegex, ''));
         const paragraphs = lyricsText.split(/[\n\r]{2,}/).filter(paragraph => !!paragraph.trim());
         const lyricsParts = paragraphs.map(paragraph => {
             const sentences = paragraph.split(/[\n\r]/);
             return sentences.map(sentence => {
-                let words = sentence.split(/[  ]+/).map(word => {
+                let words = sentence.trim().split(/[  ]+/).map(word => {
                     const parts = [];
                     let position = 0;
                     let regexResult;
                     while (regexResult = chordRegex.exec(word)) {
-                        if (regexResult.index > 0) {
+                        if (regexResult.index > position) {
                             const text = word.substring(position, regexResult.index);
                             parts.push({type: 'text', text});
                             position = regexResult.index;
                         }
-                        let text = regexResult[0].replace(/[\[\]]/g, ' ').trim();
+                        let text = regexResult[0].replace(/[\[\]]/g, '');
                         parts.push({type: 'chord', text});
                         position += regexResult[0].length;
                     }
                     if (position < word.length) {
-                        const text = word.substring(position, word.length);
+                        let text = word.substring(position, word.length);
+                        if (position > 0) {
+                            const lastChord = parts[parts.length - 1].text;
+                            const chordLength = measureTextWidth(lastChord) * CHORD_FONT_SIZE / FONT_SIZE;
+                            const textLength = measureTextWidth(text);
+                            const spaceLength = measureCharWidth(' ');
+                            const remainderLength = Math.max(0, chordLength - textLength);
+                            text += ' '.repeat(Math.ceil(remainderLength / spaceLength));
+                        }
                         parts.push({type: 'text', text});
                     }
                     const haveText = parts.some(part => part.type === 'text');

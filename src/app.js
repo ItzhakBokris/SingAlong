@@ -8,12 +8,14 @@ import throttle from 'lodash/throttle';
 import rootReducer from './store/reducer';
 import Root from './containers/root';
 import {loadAppState, saveAppState} from './utils';
+import {APP_ENTER} from './store/app/actionTypes';
 
 export default class App extends Component {
 
     state = {
         store: null,
-        isGroupConnected: false
+        isGroupConnected: false,
+        isNotFirstEntry: false
     };
 
     constructor() {
@@ -43,7 +45,12 @@ export default class App extends Component {
         loadAppState(state => {
             const store = createStore(rootReducer, state, applyMiddleware(ReduxThunk));
             store.subscribe(throttle(() => saveAppState(store.getState()), 1000));
-            this.setState({store, isGroupConnected: state.groupData && !!state.groupData.group});
+            this.setState({
+                store,
+                isNotFirstEntry: state.appData && state.appData.isNotFirstEntry,
+                isGroupConnected: state.groupData && !!state.groupData.group
+            });
+            store.dispatch({type: APP_ENTER});
         });
     }
 
@@ -51,7 +58,8 @@ export default class App extends Component {
         if (this.state.store) {
             return (
                 <Provider store={this.state.store}>
-                    <Root isGroupConnected={this.state.isGroupConnected}/>
+                    <Root isNotFirstEntry={this.state.isNotFirstEntry}
+                          isGroupConnected={this.state.isGroupConnected}/>
                 </Provider>
             );
         }

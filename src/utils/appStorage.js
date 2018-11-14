@@ -22,6 +22,7 @@ export const saveAppState = (state) => {
         const partialState = {
             userData: state.userData,
             appData: state.appData && {
+                isNotFirstEntry: state.appData.isNotFirstEntry,
                 isRated: state.appData.isRated,
                 stepsBeforeRate: state.appData.stepsBeforeRate
             },

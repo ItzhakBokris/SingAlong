@@ -16,14 +16,17 @@ import InviteMember from '../group/inviteMember';
 import {showToastMessage} from '../../utils';
 import {GroupConfig} from '../../config';
 import {About} from '../about';
+import {Welcome} from '../welcome';
 
 export default class Root extends Component {
 
     static propTypes = {
+        isNotFirstEntry: PropTypes.bool,
         isGroupConnected: PropTypes.bool
     };
 
     static defaultProps = {
+        isNotFirstEntry: false,
         isGroupConnected: false
     };
 
@@ -58,6 +61,12 @@ export default class Root extends Component {
                         <Scene key='onBoarding'>
                             <Scene
                                 initial
+                                hideNavBar
+                                key='welcome'
+                                component={Welcome}/>
+
+                            <Scene
+                                initial={this.props.isNotFirstEntry}
                                 hideNavBar
                                 key='enterGroup'
                                 component={EnterGroup}/>

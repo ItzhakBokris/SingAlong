@@ -2,11 +2,9 @@ import {Platform} from 'react-native';
 import {StatusBar} from 'react-native';
 
 export const Colors = {
-    darker: '#b71c1c',
-    dark: '#d32f2f',
-    primary: '#f44336',
-    light: '#e57373',
-    lighter: '#ffcdd2',
+    dark: '#b2000e',
+    primary: '#ec2937',
+    light: '#ff6460',
 
     success: '#5cb85c',
     info: '#5bc0de',
@@ -15,7 +13,8 @@ export const Colors = {
 
     blue: '#298eec',
 
-    grey: '#73808c',
+    darkGray: '#555',
+    grey: '#777',
     lightGrey: '#aaa',
     lighterGrey: '#ddd',
     backgroundGrey: '#f9f9f9'

@@ -210,7 +210,11 @@ class SongPage extends Component {
      */
     getSongPages() {
         let pages = this.props.groupSongs.map((song, index) => this.renderSong(song, index));
-        if (this.pager && this.props.group && this.props.group .currentPlayed === this.pager.state.page) {
+        if (this.pager &&
+            this.props.group &&
+            this.props.group.currentPlayed === this.pager.state.page &&
+            this.pager.props.children.length > 0) {
+
             return pages.slice(0, this.pager.props.children.length);
         }
         return pages;

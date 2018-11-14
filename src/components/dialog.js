@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, StyleSheet, TouchableWithoutFeedback, View, Platform} from 'react-native';
+import {Modal, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
 import PropTypes from 'prop-types';
 
 export class Dialog extends Component {
