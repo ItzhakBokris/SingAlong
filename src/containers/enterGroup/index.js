@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
         fontSize: 24
     },
     pinCodeHint: {
-        textAlign: 'center'
+        textAlign: 'center',
+        lineHeight: 24
     },
     openGroupButton: {
         marginBottom: 10,
