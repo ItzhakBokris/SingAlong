@@ -69,24 +69,39 @@ export const removeSongFromGroup = (group, songIndex) => {
 };
 
 /**
- * Fetch songs filtered by the specified search-text from (and not include) the specified from-text.
+ * Fetch songs filtered by the specified search-text from (and not include) the specified song.
  */
-export const searchSongs = (searchText = '', fromText = '', pageSize = SongsConfig.pageSize) => {
+export const searchSongs = (searchText = '', fromSong, pageSize = SongsConfig.pageSize) => {
     return (dispatch) => {
-        dispatch({type: SONGS_SEARCH_REQUEST, payload: {searchText, pageSize, fromText}});
-        const startFrom = fromText || searchText;
-        return firebase.database()
-            .ref('/songs')
-            .orderByChild('name')
-            .startAt(startFrom)
-            .limitToFirst(fromText ? pageSize + 1 : pageSize)
-            .once('value',
-                snapshot => dispatch({
+        dispatch({type: SONGS_SEARCH_REQUEST, payload: {searchText, fromSong, pageSize}});
+        const orderByName = !!searchText.trim();
+        let query = firebase.database().ref('/songs');
+        if (orderByName) {
+            query = query
+                .orderByChild('name')
+                .startAt((fromSong && fromSong.name) || searchText)
+                .limitToFirst(fromSong ? pageSize + 1 : pageSize)
+        } else {
+            query = query
+                .orderByChild('viewsCountName')
+                .limitToLast(fromSong ? pageSize + 1 : pageSize);
+            if (fromSong) {
+                query = query.endAt(fromSong.viewsCountName);
+            }
+        }
+        return query.once('value',
+            snapshot => {
+                const songs = snapshotToArray(snapshot);
+                if (!orderByName) {
+                    songs.reverse();
+                }
+                dispatch({
                     type: SONGS_SEARCH_SUCCESS,
-                    payload: snapshotToArray(snapshot).slice(fromText ? 1 : 0)
-                }),
-                error => dispatch({type: SONGS_SEARCH_FAILURE, payload: error.message})
-            );
+                    payload: songs.slice(fromSong ? 1 : 0)
+                });
+            },
+            error => dispatch({type: SONGS_SEARCH_FAILURE, payload: error.message})
+        );
     };
 };
 
@@ -118,9 +133,12 @@ export const likeSong = (songKey) => {
  * Increments the views-count of the specified songs.
  */
 export const updateSongViews = (songKeys) => {
-    songKeys.forEach(key => firebase.database()
-        .ref(`/songs/${key}`)
-        .child('viewsCount')
-        .transaction(viewsCount => (viewsCount || 0) + 1)
-    );
+    songKeys.forEach(key => firebase.database().ref(`/songs/${key}`).transaction(song => {
+        if (song) {
+            song.viewsCount = (song.viewsCount || 0) + 1;
+            song.viewsCountName = `${('0'.repeat(SongsConfig.viewsCountMaxLength) +
+                song.viewsCount).slice(-SongsConfig.viewsCountMaxLength)}_${song.lastModifiedDate}`;
+        }
+        return song;
+    }));
 };

@@ -4,7 +4,8 @@ export const AppConfig = {
 };
 
 export const SongsConfig = {
-    pageSize: 25
+    pageSize: 25,
+    viewsCountMaxLength: 12
 };
 
 export const GroupConfig = {

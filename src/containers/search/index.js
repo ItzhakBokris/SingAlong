@@ -33,7 +33,7 @@ class SearchSong extends Component {
     onEndReached() {
         const {songs, pageSize, isRequested, searchText, searchSongs} = this.props;
         if (songs.length > 0 && !isRequested && songs.length % pageSize === 0) {
-            searchSongs(searchText, songs[songs.length - 1].name);
+            searchSongs(searchText, songs[songs.length - 1]);
         }
     }
 

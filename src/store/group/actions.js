@@ -1,21 +1,21 @@
 import firebase from 'firebase';
 import {
-    GROUP_FETCH_REQUEST,
-    GROUP_FETCH_SUCCESS,
-    GROUP_FETCH_FAILURE,
+    GROUP_CLEAR,
+    GROUP_CREATE_FAILURE,
     GROUP_CREATE_REQUEST,
     GROUP_CREATE_SUCCESS,
-    GROUP_CREATE_FAILURE,
+    GROUP_FETCH_FAILURE,
+    GROUP_FETCH_REQUEST,
+    GROUP_FETCH_SUCCESS,
+    GROUP_JOIN_FAILURE,
     GROUP_JOIN_REQUEST,
     GROUP_JOIN_SUCCESS,
-    GROUP_JOIN_FAILURE,
-    GROUP_MEMBER_UPDATE_REQUEST,
-    GROUP_MEMBER_UPDATE_SUCCESS,
-    GROUP_MEMBER_UPDATE_FAILURE,
+    GROUP_LEAVE_FAILURE,
     GROUP_LEAVE_REQUEST,
     GROUP_LEAVE_SUCCESS,
-    GROUP_LEAVE_FAILURE,
-    GROUP_CLEAR
+    GROUP_MEMBER_UPDATE_FAILURE,
+    GROUP_MEMBER_UPDATE_REQUEST,
+    GROUP_MEMBER_UPDATE_SUCCESS
 } from './actionTypes';
 import {USER_NICKNAME_SET} from '../user/actionTypes';
 import {SONGS_CLEAR} from '../song/actionTypes';
@@ -129,15 +129,19 @@ export const listenToGroup = (groupKey) => {
 const fetchGroupBy = (property, value) => {
     return (dispatch) => {
         dispatch({type: GROUP_FETCH_REQUEST});
-        return firebase.database().ref('/groups').orderByChild(property).equalTo(value).once('value',
-            snapshot => {
-                const groups = snapshotToArray(snapshot);
-                if (groups.length > 0) {
-                    dispatch(listenToGroup(groups[0].key));
-                } else {
-                    dispatch({type: GROUP_FETCH_FAILURE, payload: 'group not found'});
-                }
-            },
-            error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
+        return firebase.database()
+            .ref('/groups')
+            .orderByChild(property)
+            .equalTo(value)
+            .once('value',
+                snapshot => {
+                    const groups = snapshotToArray(snapshot);
+                    if (groups.length > 0) {
+                        dispatch(listenToGroup(groups[0].key));
+                    } else {
+                        dispatch({type: GROUP_FETCH_FAILURE, payload: 'group not found'});
+                    }
+                },
+                error => dispatch({type: GROUP_FETCH_FAILURE, payload: error.message}));
     };
 };

@@ -7,7 +7,7 @@ const INITIAL_STATE = {
     selectedSongs: [],
     error: null,
     searchText: '',
-    fromText: '',
+    fromSong: null,
     pageSize: SongsConfig.pageSize,
     isRequested: false
 };
@@ -18,14 +18,14 @@ export const SearchReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 ...action.payload,
-                fromText: state.searchText !== action.payload.searchText ? '' : action.payload.fromText,
+                fromSong: state.searchText !== action.payload.searchText ? null : action.payload.fromSong,
                 isRequested: true,
                 error: null
             };
         case SONGS_SEARCH_SUCCESS:
             return {
                 ...state,
-                songs: state.fromText ? [...state.songs, ...action.payload] : action.payload,
+                songs: state.fromSong ? [...state.songs, ...action.payload] : action.payload,
                 isRequested: false,
                 error: null
             };
