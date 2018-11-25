@@ -133,12 +133,22 @@ export const likeSong = (songKey) => {
  * Increments the views-count of the specified songs.
  */
 export const updateSongViews = (songKeys) => {
-    songKeys.forEach(key => firebase.database().ref(`/songs/${key}`).transaction(song => {
-        if (song) {
-            song.viewsCount = (song.viewsCount || 0) + 1;
-            song.viewsCountName = `${('0'.repeat(SongsConfig.viewsCountMaxLength) +
-                song.viewsCount).slice(-SongsConfig.viewsCountMaxLength)}_${song.lastModifiedDate}`;
-        }
-        return song;
-    }));
+    songKeys.forEach(key => firebase.database()
+        .ref(`/songs/${key}`)
+        .child('viewsCount')
+        .transaction(viewsCount => (viewsCount || 0) + 1)
+    );
+    songKeys.forEach(key => firebase.database()
+        .ref(`/songs/${key}`)
+        .child('viewsCountName')
+        .transaction(viewsCountName => {
+            if (viewsCountName) {
+                const viewsCountNameParts = viewsCountName.split('_');
+                const viewsCount = parseInt(viewsCountNameParts[0]) + 1;
+                return `${('0'.repeat(SongsConfig.viewsCountMaxLength) + viewsCount)
+                    .slice(-SongsConfig.viewsCountMaxLength)}_${viewsCountNameParts[1]}`;
+            }
+            return viewsCountName;
+        })
+    );
 };
