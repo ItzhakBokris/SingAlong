@@ -1,6 +1,7 @@
 export const AppConfig = {
     version: require('../../package.json').version,
-    linkPrefix: 'https://singwithusapp.com/'
+    linkPrefix: 'https://singwithusapp.com/',
+    iosLinkPrefix: 'singwithusapp://'
 };
 
 export const SongsConfig = {

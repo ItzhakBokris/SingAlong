@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Linking, StatusBar, StyleSheet, View} from 'react-native';
+import {Linking, StatusBar, StyleSheet, View, Platform} from 'react-native';
 import {Router, Scene} from 'react-native-router-flux';
 import PropTypes from 'prop-types';
 import {Styles} from '../../styles';
@@ -14,11 +14,11 @@ import GroupDetails from '../group/details';
 import EditProfile from '../group/editProfile';
 import InviteMember from '../group/inviteMember';
 import {showToastMessage} from '../../utils';
-import {GroupConfig} from '../../config';
+import {AppConfig, GroupConfig} from '../../config';
 import {About} from '../about';
 import {Welcome} from '../welcome';
 
-export default class Root extends Component {
+export default class sRoot extends Component {
 
     static propTypes = {
         isNotFirstEntry: PropTypes.bool,
@@ -43,6 +43,9 @@ export default class Root extends Component {
 
     openGroupLink(groupLink) {
         if (groupLink) {
+            if (Platform.OS === 'ios') {
+                groupLink = groupLink.replace(AppConfig.iosLinkPrefix, AppConfig.linkPrefix);
+            }
             this.setState({groupUid: groupLink.replace(GroupConfig.groupLinkPrefix, '')});
         }
     }

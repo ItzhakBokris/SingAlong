@@ -6,8 +6,8 @@ import {measureCharWidth, measureTextWidth} from '../utils';
 const FONT_SIZE = Platform.OS === 'ios' ? 20 : 18;
 const CHORD_FONT_SIZE = 14;
 const CHORDS_LINE_HEIGHT = 45;
-const AUTO_SCROLL_DELTA_OFFSET = Platform.OS === 'ios' ? 0.25 : 0.25;
-const AUTO_SCROLL_DELTA_TIME = 10;
+const AUTO_SCROLL_DELTA_OFFSET = 0.25;
+const AUTO_SCROLL_DELTA_TIME = Platform.OS === 'ios' ? 40 : 10;
 const HEBREW_CHARS_REQUIRED_PROPORTION_FOR_RTL = 0.25;
 
 export class SongLyrics extends Component {
