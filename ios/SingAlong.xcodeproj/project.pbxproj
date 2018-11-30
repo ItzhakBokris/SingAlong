@@ -38,7 +38,7 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		7A83605B6B2440E082ED30E1 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 238EEDE50A8A4AEDA4102F92 /* MaterialIcons.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		A852A6E021AC440200BC07ED /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A852A6DF21AC440200BC07ED /* Images.xcassets */; };
+		A873772821B0A457004F142A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A873772721B0A457004F142A /* Images.xcassets */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		B1EC93665254443990B9028A /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CBBC74253FDE4CCC907094F7 /* libRNVectorIcons.a */; };
 		B2006375056B4CE8A334F085 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9DDAA2A3CE04411A033C321 /* Entypo.ttf */; };
@@ -382,7 +382,7 @@
 		A34B4267DB704F7BB5992412 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
 		A852A6DC21ABF7C700BC07ED /* SingAlong.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = SingAlong.entitlements; path = SingAlong/SingAlong.entitlements; sourceTree = "<group>"; };
 		A852A6DD21AC006900BC07ED /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
-		A852A6DF21AC440200BC07ED /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../../../../.Trash/Images.xcassets; sourceTree = "<group>"; };
+		A873772721B0A457004F142A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "../../ArticleHubRN-SoYummies/node_modules/react-native/local-cli/templates/HelloWorld/ios/HelloWorld/Images.xcassets"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		B9BDF6863C7144CABC1A05A3 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		BAECDFD1BF8F409C9DCFFF47 /* libKCKeepAwake.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libKCKeepAwake.a; sourceTree = "<group>"; };
@@ -534,7 +534,7 @@
 		13B07FAE1A68108700A75B9A /* SingAlong */ = {
 			isa = PBXGroup;
 			children = (
-				A852A6DF21AC440200BC07ED /* Images.xcassets */,
+				A873772721B0A457004F142A /* Images.xcassets */,
 				A852A6DC21ABF7C700BC07ED /* SingAlong.entitlements */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -1203,7 +1203,7 @@
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				B2006375056B4CE8A334F085 /* Entypo.ttf in Resources */,
 				2A1D561EC67B4962929831C2 /* EvilIcons.ttf in Resources */,
-				A852A6E021AC440200BC07ED /* Images.xcassets in Resources */,
+				A873772821B0A457004F142A /* Images.xcassets in Resources */,
 				526B9607486D4F25B5E7C614 /* Feather.ttf in Resources */,
 				19B4CD71BB884ACA8A66F11A /* FontAwesome.ttf in Resources */,
 				C6F450E2101B4825A6ABA081 /* Foundation.ttf in Resources */,
