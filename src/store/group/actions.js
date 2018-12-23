@@ -107,6 +107,8 @@ export const leaveGroup = (group, nickname, toClearGroup) => {
 
 export const clearGroup = (group) => {
     return (dispatch) => {
+        console.log("clear group");
+
         firebase.database().ref(`/groups/${group.key}`).off('value');
         dispatch({type: GROUP_CLEAR});
         dispatch({type: SONGS_CLEAR});
